@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, ForeignKey, Date, Enum, Text, DateTime, func
+from sqlalchemy import Column, Integer, ForeignKey, Enum, Text, DateTime, func
 from sqlalchemy.orm import relationship
 import enum
 
 from app.db.session import Base
 
 class RequestStatus(enum.Enum):
-    PENDING = "pending"   # Đang chờ
-    APPROVED = "approved" # Đã duyệt (HR đã ấn công)
-    REJECTED = "rejected" # Từ chối
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
 
 class ShiftChangeRequest(Base):
     __tablename__ = "shift_change_requests"

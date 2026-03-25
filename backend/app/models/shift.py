@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, Time, ForeignKey, Date, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Time, Boolean
 
 from app.db.session import Base
 
@@ -17,17 +16,3 @@ class Shift(Base):
     work_value = Column(Integer, default=1) 
     
     is_active = Column(Boolean, default=True)
-
-class EmployeeShift(Base):
-    """Bảng phân ca cụ thể: Nhân viên A làm ca X vào ngày Y"""
-    __tablename__ = "employee_shifts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
-    shift_id = Column(Integer, ForeignKey("shifts.id"), nullable=False)
-    
-    work_date = Column(Date, nullable=False, index=True) # Ngày làm việc cụ thể
-    
-    # Quan hệ
-    employee = relationship("Employee")
-    shift = relationship("Shift")

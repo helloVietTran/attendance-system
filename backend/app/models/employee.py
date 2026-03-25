@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, DECIMAL
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, DECIMAL
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -16,6 +16,9 @@ class Employee(Base):
     
     dob = Column(Date, nullable=False)
     salary = Column(DECIMAL(10, 2), nullable=False)
+    shift_id = Column(Integer, ForeignKey("shifts.id"), nullable=False)
 
+    # quan hệ
     absences = relationship("Absence", back_populates="employee")
+    shift = relationship("Shift")
 

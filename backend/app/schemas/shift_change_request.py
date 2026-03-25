@@ -1,22 +1,21 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+from app.models.shift_change_request import RequestStatus
 
-# chỉ được thay đổica của tháng tháng sau, không được thay đổi ca của tháng trước
-class ShiftChangeRequestBase(BaseModel):
-    target_month: int = Field(..., ge=1, le=12)
-    target_year: int = Field(..., ge=2024)
+class ShiftChangeCreate(BaseModel):
     new_shift_id: int
+    current_shift_id: int
     reason: Optional[str] = None
 
-class ShiftChangeRequestCreate(ShiftChangeRequestBase):
-    employee_id: int
-    old_shift_id: int
-
-class ShiftChangeRequestResponse(ShiftChangeRequestBase):
+class ShiftChangeResponse(BaseModel):
     id: int
     employee_id: int
-    status: str
+    target_month: int
+    target_year: int
+    old_shift_id: int
+    new_shift_id: int
+    status: RequestStatus
     created_at: datetime
 
     class Config:
