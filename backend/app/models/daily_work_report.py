@@ -15,7 +15,6 @@ class DailyWorkReport(Base):
     check_in = Column(Time, nullable=True)  # Giờ vào thực tế
     check_out = Column(Time, nullable=True) # Giờ ra thực tế
 
-    # Các trường tính toán (Đơn vị: Phút)
     late_arrive_minutes = Column(Integer, default=0) # Đi muộn
     leave_early_minutes = Column(Integer, default=0) # Về sớm
     lack_minutes = Column(Integer, default=0)        # Thiếu hụt (so với 8 tiếng)
@@ -23,10 +22,8 @@ class DailyWorkReport(Base):
     in_office_minutes = Column(Integer, default=0)   # Tổng thời gian có mặt tại VP
     work_time_minutes = Column(Integer, default=0)   # Thời gian làm việc thực tế được tính công
 
-    # Thời gian cập nhật tự động (Precision 6 cho MySQL)
     updated_at = Column(DateTime(6), server_default=func.now(), onupdate=func.now())
+    note = Column(String(255), nullable=True)  # Ghi chú thêm nếu cần như nghỉ thai sản
 
     # Quan hệ
     employee = relationship("Employee")
-
-    note = Column(String(255), nullable=True)  # Ghi chú thêm nếu cần như nghỉ thai sản

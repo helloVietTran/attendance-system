@@ -17,7 +17,7 @@ class WorkReportBase(BaseModel):
 class WorkReportUpdate(WorkReportBase):
     pass
 
-class WorkReportResponse(WorkReportBase):
+class DailyWorkReportResponse(WorkReportBase):
     id: int
     updated_at: datetime
 

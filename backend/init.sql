@@ -1,0 +1,17 @@
+-- init tables
+
+-- init config data
+INSERT INTO absence_types (name, code, is_paid) VALUES ('Nghỉ phép năm', 'VAC', 1);
+INSERT INTO absence_types (name, code, is_paid) VALUES ('Nghỉ ốm', 'SICK', 1);
+
+INSERT INTO employees (full_name, age, email, department_id, password_hash, dob, salary) 
+VALUES 
+('Nguyen Van A', 30, 'vana@company.com', 1, 'hashed_password_123', '1996-01-01', 15000000.00),
+('Tran Thi B', 25, 'thib@company.com', 2, 'hashed_password_456', '2001-05-20', 12000000.00);
+
+INSERT INTO system_settings (`key`, `value`, `description`) VALUES 
+('lunch_break_start', '12:00', 'Giờ bắt đầu nghỉ trưa'),
+('lunch_break_end', '13:30', 'Giờ kết thúc nghỉ trưa'),
+('annual_paid_leave_days', '14', 'Số ngày nghỉ phép hưởng lương định mức hàng năm'),
+('maternity_leave_months', '6', 'Thời gian nghỉ thai sản tính theo tháng'),
+('max_attendance_correction_per_month', '3', 'Số lần tối đa nhân viên được phép gửi yêu cầu chỉnh sửa chấm công trong một tháng');
