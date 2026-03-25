@@ -18,5 +18,4 @@ class AttendanceLog(Base):
     
     checked_time = Column(Time, nullable=False) 
     
-    # Quan hệ để lấy thông tin Name/Email từ bảng Employee khi cần
-    employee = relationship("Employee", back_populates="attendance_logs")
+    employee = relationship("Employee")

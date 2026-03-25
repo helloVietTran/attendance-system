@@ -27,6 +27,6 @@ class DailyWorkReport(Base):
     updated_at = Column(DateTime(6), server_default=func.now(), onupdate=func.now())
 
     # Quan hệ
-    employee = relationship("Employee", back_populates="work_reports")
+    employee = relationship("Employee")
 
     note = Column(String(255), nullable=True)  # Ghi chú thêm nếu cần như nghỉ thai sản

@@ -13,13 +13,13 @@ class Vacation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
+    description = Column(String(500), nullable=True)
+
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
-    
-    # Trường quan trọng để phân loại
     vacation_type = Column(Enum(VacationType), default=VacationType.HOLIDAY)
     
-    # Mặc định nghỉ đột xuất/lễ thường là có lương (không trừ phép)
+    # Mặc định nghỉ lễ có lương
     is_paid = Column(Boolean, default=True)
 
     is_recurring = Column(Boolean, default=True) # nghỉ thường niên
