@@ -7,13 +7,13 @@ from app.api.v1.settings import router as setting_router
 from app.api.v1.attendance import router as attendance_router
 
 from app.services.setting_service import setting_service
-
 from app.models import (
     absence_tracker, absence, attendance_correction, attendance_log, 
     daily_work_report, employee_benefit_log, employee, notification, 
     overtime_request, shift_change_request, shift, system_setting, 
     timesheet_monthly_summary, timesheet_period_control, vacation
 )
+from app.core.scheduler import start_scheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,12 +22,12 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         setting_service.preload_all_settings(db)
-        print(setting_service._cache)
+        start_scheduler()
+
     except Exception as e:
         print(f"Lỗi khi nạp settings: {e}")
     finally:
         db.close()
-    
     yield
 
     setting_service._cache.clear()
