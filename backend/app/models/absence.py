@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, Enum, Text
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
 
@@ -23,7 +23,7 @@ class Absence(Base):
     __tablename__ = "absences"
 
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, index=True, nullable=False)
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     absence_type_id = Column(Integer, ForeignKey("absence_types.id"), nullable=False)
     
     start_date = Column(Date, nullable=False)
@@ -36,3 +36,4 @@ class Absence(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     type_info = relationship("AbsenceType")
+    employee = relationship("Employee", back_populates="absences")

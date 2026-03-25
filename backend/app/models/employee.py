@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, DECIMAL
+from sqlalchemy.orm import relationship
 
 from app.db.session import Base
 
@@ -15,4 +16,6 @@ class Employee(Base):
     
     dob = Column(Date, nullable=False)
     salary = Column(DECIMAL(10, 2), nullable=False)
+
+    absences = relationship("Absence", back_populates="employee")
 
