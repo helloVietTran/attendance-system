@@ -13,10 +13,8 @@ class AbsenceTracker(Base):
     # Số ngày nghỉ liên tiếp tính đến hiện tại
     consecutive_days_off = Column(Integer, default=0)
     
-    # Ngày cuối cùng họ có mặt (Check-in)
     last_present_date = Column(Date, nullable=True)
-    
-    # Đánh dấu nếu đã gửi cảnh báo cho HR (để tránh gửi spam mỗi ngày)
+
     has_alerted_hr = Column(Boolean, default=False)
     
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

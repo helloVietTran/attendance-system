@@ -4,6 +4,7 @@ from datetime import datetime, date
 from fastapi import HTTPException
 from app.models.shift_change_request import ShiftChangeRequest, RequestStatus
 from app.models.employee import Employee
+from app.models.notification import Notification
 from app.schemas.shift_change_request import ShiftChangeCreate
 
 class ShiftService:
@@ -63,10 +64,44 @@ class ShiftService:
         req.processed_by = admin_id
         req.processed_at = datetime.now()
 
-        # sau đó cho một cron job chạy vào 1h sáng đầu tháng để cập nhật ca làm việc của nhân viên
-
         db.commit()
         db.refresh(req)
         return req
+    
+    def apply_monthly_shift_changes(self, db: Session):
+        """
+        Cập nhật ca làm mới cho nhân viên vào đầu tháng
+        """
+        today = date.today()
+        current_month = today.month
+        current_year = today.year
+
+        requests = db.query(ShiftChangeRequest).filter(
+            ShiftChangeRequest.status == RequestStatus.APPROVED,
+            ShiftChangeRequest.target_month == current_month,
+            ShiftChangeRequest.target_year == current_year
+        ).all()
+
+        if not requests:
+            return 0
+
+        updated_count = 0
+        for req in requests:
+            employee = db.query(Employee).filter(Employee.id == req.employee_id).first()
+            if employee:
+                old_id = employee.shift_id
+                employee.shift_id = req.new_shift_id
+                
+                notif = Notification(
+                    employee_id=employee.id,
+                    title="Cập nhật ca làm việc mới",
+                    content=f"Ca làm việc của bạn đã được hệ thống tự động cập nhật từ ID {old_id} sang ID {req.new_shift_id}.",
+                    notification_type="SHIFT_CHANGE"
+                )
+                db.add(notif)
+                updated_count += 1
+
+        db.commit()
+        return updated_count
 
 shift_service = ShiftService()

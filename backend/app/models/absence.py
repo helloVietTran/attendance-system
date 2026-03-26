@@ -15,8 +15,8 @@ class AbsenceType(Base):
     __tablename__ = "absence_types"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, nullable=False)  # Ví dụ: Sickness, Parental, Vacation
-    code = Column(String(20), unique=True, nullable=False)  # Ví dụ: SICK, PARENT, VAC
+    name = Column(String(50), unique=True, nullable=False)  # Ví dụ: Sickness, Parental, Vacation, Maternity
+    code = Column(String(20), unique=True, nullable=False)  # Ví dụ: SICK, PARENT, VAC, Mater
     is_paid = Column(Integer, default=1)  # 1: Có lương, 0: Không lương
 
 class Absence(Base):
