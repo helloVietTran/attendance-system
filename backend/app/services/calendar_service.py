@@ -2,8 +2,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.vacation import Vacation
 from app.schemas.vacation import VacationCreate, VacationUpdate
-from app.models.absence import Absence, ApprovalStatus # Giả định model của bạn
-from app.schemas.absence import AbsenceCreate, AbsenceApprove
 
 class CalendarService:
     def create_vacation(self, db: Session, obj_in: VacationCreate):
