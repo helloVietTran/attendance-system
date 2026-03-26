@@ -7,6 +7,7 @@ from app.api.v1.settings import router as setting_router
 from app.api.v1.attendance import router as attendance_router
 from app.api.v1.shift import router as shift_router
 from app.api.v1.employee import router as employee_router
+from app.api.v1.notification import router as notification_router
 
 from app.services.setting_service import setting_service
 from app.models import (
@@ -46,3 +47,4 @@ app.include_router(setting_router, prefix="/api/v1")
 app.include_router(attendance_router, prefix="/api/v1")
 app.include_router(shift_router, prefix="/api/v1")
 app.include_router(employee_router, prefix="/api/v1")
+app.include_router(notification_router, prefix="/api/v1")

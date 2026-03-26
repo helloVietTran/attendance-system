@@ -1,0 +1,37 @@
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from datetime import datetime
+from app.db.session import get_db
+from app.services.notification_service import notification_service
+from app.schemas.notification import NotificationListWithCount
+
+router = APIRouter(prefix="/notifications", tags=["Notifications"])
+
+@router.get("/{employee_id}", response_model=NotificationListWithCount)
+def get_notifications(
+    employee_id: int,
+    month: int = Query(..., ge=1, le=12),
+    year: int = Query(default=datetime.now().year),
+    db: Session = Depends(get_db)
+):
+    """
+    Lấy thông báo kèm theo số lượng tổng và số lượng chưa đọc trong tháng.
+    """
+    return notification_service.get_employee_notifications(
+        db, employee_id, month, year
+    )
+
+@router.patch("/mark-read")
+def mark_notifications_as_read(
+    ids: str = Query(..., description="Chuỗi ID thông báo, ví dụ: '1,2,5'"), 
+    db: Session = Depends(get_db)
+):
+    """
+    API đánh dấu đã đọc cho nhiều thông báo cùng lúc.
+    Truyền vào query param: ?ids=1,2,3
+    """
+    count = notification_service.mark_as_read_bulk(db, ids)
+    return {
+        "status": "success",
+        "message": f"Đã đánh dấu đọc cho {count} thông báo."
+    }
