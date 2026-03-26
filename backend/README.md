@@ -22,7 +22,9 @@ Tóm tắt các bước tải:
 ## 📁 3. Clone project
 
 ```bash
-git clone -b backend https://github.com/helloVietTran/attendance-system
+git clone https://github.com/helloVietTran/attendance-system
+git branch -a
+git checkout -b backend origin/backend
 cd backend
 ```
 
