@@ -22,5 +22,5 @@ class AttendanceCorrection(Base):
     reason = Column(Text, nullable=False) # "Quên quẹt thẻ", "Máy hỏng"...
     status = Column(Enum(RequestStatus), default=RequestStatus.PENDING)
     
-    approved_by = Column(Integer, ForeignKey("employees.id"), nullable=True) # ID người duyệt
+    approved_by = Column(Integer, ForeignKey("employees.id"), nullable=True)
     created_at = Column(DateTime, server_default=func.now())

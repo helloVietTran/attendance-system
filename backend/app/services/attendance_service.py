@@ -1,11 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import extract, and_
 from datetime import date
+from fastapi import HTTPException
 
 from app.models.attendance_log import AttendanceLog
 from app.schemas.attendance_log import AttendanceCreate
-from app.services.setting_service import setting_service
 from app.models.daily_work_report import DailyWorkReport
+from app.services.setting_service import setting_service
 
 class AttendanceService:
     def ingest_log(self, db: Session, obj_in: AttendanceCreate):
@@ -42,12 +43,18 @@ class AttendanceService:
         return max(0, end - start)
 
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
-        # 1. Lấy các setting cần thiết
-        lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start", "12:00")
-        lunch_end_str = setting_service.get_setting_value(db, "lunch_break_end", "13:00")
+        # lấy các setting cần thiết
+        lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")
+        lunch_end_str = setting_service.get_setting_value(db, "lunch_break_end")
         required_minutes = int(setting_service.get_setting_value(db, "required_work_minutes", 480))
 
-        # 2. Lấy log đầu tiên và cuối cùng trong ngày
+        if not lunch_start_str or not lunch_end_str:
+            error_msg = f"Chưa có cấu hình chấm công (Lunch/Required Minutes)"
+            print(error_msg)
+
+            raise HTTPException(status_code=400, detail="Hệ thống chưa cấu hình khung giờ làm việc chuẩn.")
+
+        # lấy log đầu tiên và cuối cùng trong ngày
         logs = db.query(AttendanceLog).filter(
             AttendanceLog.employee_id == employee_id,
             AttendanceLog.log_date == work_date

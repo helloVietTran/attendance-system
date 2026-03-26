@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager # Dùng thư viện chuẩn của Python
+from contextlib import asynccontextmanager
 
 from app.db.session import init_db, SessionLocal
 from app.api.v1.calendar import router as calendar_router
@@ -8,6 +8,7 @@ from app.api.v1.attendance import router as attendance_router
 from app.api.v1.shift import router as shift_router
 from app.api.v1.employee import router as employee_router
 from app.api.v1.notification import router as notification_router
+from app.api.v1.fix_attendance import router as fix_attendance_router
 
 from app.services.setting_service import setting_service
 from app.models import (
@@ -48,3 +49,4 @@ app.include_router(attendance_router, prefix="/api/v1")
 app.include_router(shift_router, prefix="/api/v1")
 app.include_router(employee_router, prefix="/api/v1")
 app.include_router(notification_router, prefix="/api/v1")
+app.include_router(fix_attendance_router, prefix="/api/v1")
