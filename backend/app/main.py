@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.db.session import init_db, SessionLocal
 from app.api.v1.calendar import router as calendar_router
@@ -11,6 +13,7 @@ from app.api.v1.notification import router as notification_router
 from app.api.v1.fix_attendance import router as fix_attendance_router
 from app.api.v1.absences import router as absence_router
 from app.api.v1.payroll import router as payroll_router
+from app.api.v1.auth import router as auth_router
 
 from app.services.setting_service import setting_service
 from app.models import (
@@ -20,6 +23,7 @@ from app.models import (
     timesheet_monthly_summary, timesheet_period_control, vacation
 )
 from app.core.scheduler import start_scheduler
+from app.core.config import SECRET_KEY
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +48,24 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=SECRET_KEY, 
+    session_cookie="ATS_SESSION_ID" 
+)
+
 # Đăng ký Router
 app.include_router(calendar_router, prefix="/api/v1")
 app.include_router(setting_router, prefix="/api/v1")
@@ -54,3 +76,4 @@ app.include_router(notification_router, prefix="/api/v1")
 app.include_router(fix_attendance_router, prefix="/api/v1")
 app.include_router(absence_router, prefix="/api/v1")
 app.include_router(payroll_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1" )

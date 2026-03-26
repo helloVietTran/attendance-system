@@ -1,7 +1,13 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Date, DECIMAL
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, DECIMAL, Enum
 from sqlalchemy.orm import relationship
+import enum
 
 from app.db.session import Base
+
+class UserRole(str, enum.Enum):
+    EMPLOYEE = "Employee"
+    HR = "HR"
+    ADMIN = "Admin"
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -17,6 +23,7 @@ class Employee(Base):
     dob = Column(Date, nullable=False)
     salary = Column(DECIMAL(10, 2), nullable=False)
     shift_id = Column(Integer, ForeignKey("shifts.id"), nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE, nullable=False)
 
     # quan hệ
     absences = relationship("Absence", back_populates="employee")
