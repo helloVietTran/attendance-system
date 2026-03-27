@@ -13,7 +13,6 @@ class AbsenceTypeResponse(BaseModel):
     class Config: from_attributes = True
 
 class AbsenceBase(BaseModel):
-    employee_id: int
     absence_type_id: int
     start_date: date
     end_date: date
@@ -36,7 +35,7 @@ class AbsenceResponse(AbsenceBase):
         from_attributes = True
 
 class AbsenceApprove(BaseModel):
-    status: ApprovalStatus = Field(..., example="approved") # Chỉ nhận "approved" hoặc "rejected"
+    status: ApprovalStatus = Field(..., example="approved")
     note: Optional[str] = Field(None, example="Đã duyệt, chúc bạn nghỉ lễ vui vẻ")
 
 class LongTermAbsenceCreate(BaseModel):

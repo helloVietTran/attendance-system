@@ -8,15 +8,15 @@ from app.models.notification import Notification
 from app.schemas.absence import AbsenceCreate, AbsenceApprove, LongTermAbsenceCreate
 
 class AbsenceService:
-    def create_absence(self, db: Session, obj_in: AbsenceCreate):
+    def create_absence(self, db: Session, obj_in: AbsenceCreate, empId):
         """Tạo đơn xin nghỉ phép với kiểm tra trùng lặp thời gian"""
-        emp = db.query(Employee).filter(Employee.id == obj_in.employee_id).first()
+        emp = db.query(Employee).filter(Employee.id == empId).first()
         if not emp:
             raise HTTPException(status_code=404, detail="Nhân viên không tồn tại")
 
         # kiểm tra trùng lặp (Overlap) với các đơn chưa bị từ chối
         overlap_check = db.query(Absence).filter(
-            Absence.employee_id == obj_in.employee_id,
+            Absence.employee_id == empId,
             Absence.status != ApprovalStatus.REJECTED, 
             and_(
                 Absence.start_date <= obj_in.end_date,
@@ -40,12 +40,19 @@ class AbsenceService:
         """Lấy danh sách đơn nghỉ của một nhân viên"""
         return db.query(Absence).filter(Absence.employee_id == employee_id).all()
     
-    def delete_pending_absence(self, db: Session, absence_id: int):
-        """Xóa đơn nghỉ phép (Chỉ cho phép khi đang PENDING)"""
-        db_obj = db.query(Absence).filter(Absence.id == absence_id).first()
+    def delete_pending_absence(self, db: Session, absence_id: int, empId: int):
+        """Xóa đơn nghỉ phép (Chỉ cho phép khi đang PENDING và đúng chủ sở hữu)"""
+        
+        db_obj = db.query(Absence).filter(
+            Absence.id == absence_id,
+            Absence.employee_id == empId
+        ).first()
         
         if not db_obj:
-            raise HTTPException(status_code=404, detail="Không tìm thấy đơn nghỉ phép")
+            raise HTTPException(
+                status_code=404, 
+                detail="Không tìm thấy đơn nghỉ phép hoặc bạn không có quyền xóa đơn này"
+            )
 
         if db_obj.status != ApprovalStatus.PENDING:
             raise HTTPException(
@@ -55,7 +62,8 @@ class AbsenceService:
 
         db.delete(db_obj)
         db.commit()
-        return {"message": "Đã xóa đơn nghỉ phép thành công", "id": absence_id}
+        
+        return {"id": absence_id}
 
     def approve_absence(self, db: Session, absence_id: int, obj_in: AbsenceApprove):
         """Duyệt hoặc từ chối đơn nghỉ phép và gửi thông báo cho nhân viên"""
@@ -113,7 +121,7 @@ class AbsenceService:
             start_date=obj_in.start_date,
             end_date=obj_in.end_date,
             reason=obj_in.reason,
-            status=ApprovalStatus.APPROVED
+            status=ApprovalStatus.APPROVED,
         )
         
         db.add(db_absence)
