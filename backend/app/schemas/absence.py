@@ -30,7 +30,7 @@ class AbsenceResponse(AbsenceBase):
     id: int
     status: ApprovalStatus
     created_at: datetime
-    type_info: Optional[AbsenceTypeResponse] = None 
+    type_info: Optional[AbsenceTypeResponse] = None
 
     class Config:
         from_attributes = True

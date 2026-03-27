@@ -23,7 +23,7 @@ class AttendanceService:
         db.refresh(db_obj)
         return db_obj
 
-    def get_attendance_by_month(self, db: Session, employee_id: int, month: int, year: int):
+    def get_attendance_logs_by_month(self, db: Session, employee_id: int, month: int, year: int):
         """Lấy danh sách chấm công của nhân viên trong một tháng cụ thể"""
         return db.query(AttendanceLog).filter(
             AttendanceLog.employee_id == employee_id,
@@ -31,17 +31,6 @@ class AttendanceService:
             extract('year', AttendanceLog.log_date) == year
         ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
     
-    def time_to_minutes(self, time_str: str) -> int:
-        if not time_str: return 0
-        h, m = map(int, time_str.split(':'))
-        return h * 60 + m
-    
-    def get_overlap_minutes(self, start1, end1, start2, end2) -> int:
-        """Tính số phút trùng nhau giữa 2 khoảng thời gian"""
-        start = max(start1, start2)
-        end = min(end1, end2)
-        return max(0, end - start)
-
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
         # lấy các setting cần thiết
         lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")
@@ -67,19 +56,19 @@ class AttendanceService:
         last_log = logs[-1]
 
         # Convert sang minutes
-        check_in_min = self.time_to_minutes(str(first_log.checked_time)[:5])
-        check_out_min = self.time_to_minutes(str(last_log.checked_time)[:5])
+        check_in_min = self._time_to_minutes(str(first_log.checked_time)[:5])
+        check_out_min = self._time_to_minutes(str(last_log.checked_time)[:5])
 
-        shift_start_min = self.time_to_minutes(str(first_log.shift_start)[:5])
-        shift_end_min = self.time_to_minutes(str(first_log.shift_end)[:5])
+        shift_start_min = self._time_to_minutes(str(first_log.shift_start)[:5])
+        shift_end_min = self._time_to_minutes(str(first_log.shift_end)[:5])
 
-        lunch_start_min = self.time_to_minutes(lunch_start_str)
-        lunch_end_min = self.time_to_minutes(lunch_end_str)
+        lunch_start_min = self._time_to_minutes(lunch_start_str)
+        lunch_end_min = self._time_to_minutes(lunch_end_str)
 
         in_office = check_out_min - check_in_min
         
         # Trừ giờ nghỉ trưa (Overlap giữa giờ làm và giờ nghỉ)
-        overlap_lunch = self.get_overlap_minutes(check_in_min, check_out_min, lunch_start_min, lunch_end_min)
+        overlap_lunch = self._get_overlap_minutes(check_in_min, check_out_min, lunch_start_min, lunch_end_min)
         actual_work_time = in_office - overlap_lunch
 
         # Tính đi muộn về sớm
@@ -112,7 +101,7 @@ class AttendanceService:
         db.refresh(daily_report)
         return daily_report
 
-    def get_monthly_report(self, db: Session, employee_id: int, month: int, year: int):
+    def get_daily_work_reports_by_month(self, db: Session, employee_id: int, month: int, year: int):
         return db.query(DailyWorkReport).filter(
             and_(
                 DailyWorkReport.employee_id == employee_id,
@@ -120,6 +109,16 @@ class AttendanceService:
                 extract('year', DailyWorkReport.work_date) == year
             )
         ).order_by(DailyWorkReport.work_date.asc()).all()
+    
+    def _time_to_minutes(self, time_str: str) -> int:
+        if not time_str: return 0
+        h, m = map(int, time_str.split(':'))
+        return h * 60 + m
+    
+    def _get_overlap_minutes(self, start1, end1, start2, end2) -> int:
+        """Tính số phút trùng nhau giữa 2 khoảng thời gian"""
+        start = max(start1, start2)
+        end = min(end1, end2)
+        return max(0, end - start)
 
-# Khởi tạo instance
 attendance_service = AttendanceService()

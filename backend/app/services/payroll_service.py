@@ -169,7 +169,7 @@ class PayrollService:
         except Exception as e:
             db.rollback()
             print(f"Transaction failed: {str(e)}")
-            raise e
+            raise HTTPException(status_code=500, detail=f"Quá trình tính toán thất bại: {str(e)}")
 
     def lock_timesheet_period(self, db: Session, admin_id: int, month: int, year: int, closing_day: int = 20):
         """
@@ -202,10 +202,6 @@ class PayrollService:
             existing_period.closing_date = today
 
         db.commit()
-        return {
-            "month": month,
-            "year": year,
-            "status": "LOCKED"
-        }
+        return existing_period or new_control
 
 payroll_service = PayrollService()

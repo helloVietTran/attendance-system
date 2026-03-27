@@ -15,6 +15,9 @@ from app.api.v1.absences import router as absence_router
 from app.api.v1.payroll import router as payroll_router
 from app.api.v1.auth import router as auth_router
 
+from fastapi.exceptions import HTTPException, RequestValidationError
+from app.core.exceptions import http_exception_handler, validation_exception_handler
+
 from app.services.setting_service import setting_service
 from app.models import (
     absence_tracker, absence, attendance_correction, attendance_log, 
@@ -65,6 +68,9 @@ app.add_middleware(
     secret_key=SECRET_KEY, 
     session_cookie="ATS_SESSION_ID" 
 )
+
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Đăng ký Router
 app.include_router(calendar_router, prefix="/api/v1")

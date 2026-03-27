@@ -6,12 +6,13 @@ from app.db.session import get_db
 from app.models.employee import Employee
 from app.schemas.auth import LoginSchema
 from app.schemas.employee import EmployeeRead
+from app.schemas.base import ResponseSchema
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# hệ thống này dùng để tích hợp nên không hashe password
-@router.post("/login", response_model=EmployeeRead)
+# hệ thống này dùng để tích hợp nên không hash password
+@router.post("/login", response_model=ResponseSchema[EmployeeRead])
 async def login(data: LoginSchema, request: Request, db: Session = Depends(get_db)):
     user = db.query(Employee).filter(Employee.email == data.email).first()
     # if not user or not pwd_context.verify(data.password, user.password_hash):
@@ -22,11 +23,11 @@ async def login(data: LoginSchema, request: Request, db: Session = Depends(get_d
     request.session["role"] = user.role
     request.session["email"] = user.email
 
-    return user
+    return ResponseSchema(data=user)
 
-@router.post("/logout")
+@router.post("/logout", response_model=ResponseSchema[None])
 async def logout(request: Request):
     
     request.session.clear()
-    return {"message": "Đã đăng xuất"}
+    return ResponseSchema(data=None, message="Đăng xuất thành công")
 

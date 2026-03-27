@@ -3,25 +3,35 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from app.db.session import get_db
 from app.services.notification_service import notification_service
-from app.schemas.notification import NotificationListWithCount
+from app.schemas.notification import NotificationResponse
+from app.schemas.base import PaginationResponse, ResponseSchema, PaginationMetadata
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
-@router.get("/{employee_id}", response_model=NotificationListWithCount)
+@router.get("/{employee_id}", response_model=PaginationResponse[NotificationResponse])
 def get_notifications(
     employee_id: int,
     month: int = Query(..., ge=1, le=12),
     year: int = Query(default=datetime.now().year),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    """
-    Lấy thông báo kèm theo số lượng tổng và số lượng chưa đọc trong tháng.
-    """
-    return notification_service.get_employee_notifications(
-        db, employee_id, month, year
+    items, total, pages = notification_service.get_employee_notifications(
+        db, employee_id, month, year, page, limit
     )
 
-@router.patch("/mark-read")
+    return PaginationResponse(
+        data=items,
+        pagination=PaginationMetadata(
+            total_elements=total,
+            total_pages=pages,
+            page=page,
+            limit=limit
+        )
+    )
+
+@router.patch("/mark-read", response_model=ResponseSchema[None])
 def mark_notifications_as_read(
     ids: str = Query(..., description="Chuỗi ID thông báo, ví dụ: '1,2,5'"), 
     db: Session = Depends(get_db)
@@ -31,7 +41,5 @@ def mark_notifications_as_read(
     Truyền vào query param: ?ids=1,2,3
     """
     count = notification_service.mark_as_read_bulk(db, ids)
-    return {
-        "status": "success",
-        "message": f"Đã đánh dấu đọc cho {count} thông báo."
-    }
+
+    return ResponseSchema(message=f"Đã đánh dấu đọc cho {count} thông báo.")

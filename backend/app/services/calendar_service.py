@@ -39,6 +39,9 @@ class CalendarService:
         return db.query(Vacation).offset(skip).limit(limit).all()
     
     def get_vacation_by_id(self, db: Session, vacation_id: int):
-        return db.query(Vacation).filter(Vacation.id == vacation_id).first()
+        vacation = db.query(Vacation).filter(Vacation.id == vacation_id).first()
+        if not vacation:
+            raise HTTPException(status_code=404, detail="Không tìm thấy ngày nghỉ này")
+        return vacation
 
 calendar_service = CalendarService()

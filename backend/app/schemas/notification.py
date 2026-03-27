@@ -12,8 +12,3 @@ class NotificationResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-class NotificationListWithCount(BaseModel):
-    total_count: int
-    unread_count: int
-    items: List[NotificationResponse]
