@@ -51,7 +51,7 @@ class FixAttendanceService:
         db.refresh(db_obj)
         return db_obj
 
-    def approve_correction(self, db: Session, correction_id: int, admin_id: int):
+    def approve_fix_request(self, db: Session, correction_id: int, admin_id: int):
         """HR Phê duyệt và cập nhật lại bảng DailyWorkReport"""
         fix_req = db.query(AttendanceCorrection).filter(AttendanceCorrection.id == correction_id).first()
         

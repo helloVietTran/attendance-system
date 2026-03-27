@@ -8,6 +8,6 @@ from app.schemas.employee import EmployeeWithShiftResponse
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
-@router.get("/{employee_id}/shift", response_model=ResponseSchema[EmployeeWithShiftResponse])
+@router.get("/{employee_id}", response_model=ResponseSchema[EmployeeWithShiftResponse])
 def get_employee(employee_id: int, db: Session = Depends(get_db)):
     return ResponseSchema(data=employee_service.get_employee_with_shift(db, employee_id))

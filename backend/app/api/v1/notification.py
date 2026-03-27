@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
+
+from app.core.dependencies import get_current_user
 from app.db.session import get_db
 from app.services.notification_service import notification_service
 from app.schemas.notification import NotificationResponse
@@ -34,7 +36,8 @@ def get_notifications(
 @router.patch("/mark-read", response_model=ResponseSchema[None])
 def mark_notifications_as_read(
     ids: str = Query(..., description="Chuỗi ID thông báo, ví dụ: '1,2,5'"), 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _ = Depends(get_current_user)
 ):
     """
     API đánh dấu đã đọc cho nhiều thông báo cùng lúc.

@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.session import get_db
+from app.core.dependencies import role_required
+from app.models.employee import UserRole
 from app.services.setting_service import setting_service
 from app.schemas.system_setting import SystemSettingResponse, SystemSettingUpdate, SystemSettingKey
 from app.schemas.base import ResponseSchema
@@ -15,9 +17,10 @@ def read_settings(db: Session = Depends(get_db)):
 
 @router.patch("/{key}", response_model=ResponseSchema[SystemSettingResponse])
 def update_system_config(
-    key: SystemSettingKey, # <--- Đổi str thành SystemSettingKey
-    obj_in: SystemSettingUpdate, 
-    db: Session = Depends(get_db)
+    key: SystemSettingKey,
+    obj_in: SystemSettingUpdate,
+    db: Session = Depends(get_db),
+    _=Depends(role_required([UserRole.ADMIN.value]))
 ):
     """Cập nhật một thông số cấu hình cụ thể"""
     return ResponseSchema(data=setting_service.update_setting(db, key=key, value=obj_in.value))
