@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="../../core/css/main.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+
+        <p id="message"></p>
+    </div>
+
+    <script src="../../core/js/api.js"></script>
+    <script>
+        async function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+
+            // 🔥 fake account
+            if (email === "admin" && password === "123") {
+                // fake token
+                localStorage.setItem("token", "fake-admin-token");
+
+                // fake role
+                localStorage.setItem("role", "admin");
+
+                // chuyển trang
+                window.location.href = "../../core/layout/base.html";
+            } else {
+                document.getElementById("message").innerText = "Sai tài khoản hoặc mật khẩu";
+            }
+
+
+            // try {
+            //     const res = await fetch(API_URL + "/login", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json"
+            //         },
+            //         body: JSON.stringify({ email, password })
+            //     });
+
+            //     const data = await res.json();
+
+            //     if (res.status === 200) {
+            //         localStorage.setItem("token", data.access_token);
+
+            //         window.location.href = "../Dashboard/index.html";
+            //     } else {
+            //         document.getElementById("message").innerText = data.detail;
+            //     }
+
+            // } catch (e) {
+            //     console.error(e);
+            // }
+        }
+    </script>
+
+</body>
+
+</html>

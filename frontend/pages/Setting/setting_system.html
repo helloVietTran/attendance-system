@@ -1,0 +1,69 @@
+<div class="settings-form-container" style="padding: 20px;">
+    <h2 style="color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Hệ thống</h2>
+    <p style="color: #888; margin-bottom: 25px; font-size: 14px;">Cấu hình các tham số vận hành cơ bản của công ty.</p>
+
+    <form id="system-settings-form">
+
+        <h3
+            style="color: var(--accent-color); font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+            <i class="fa-solid fa-utensils" style="margin-right: 8px;"></i> Nghỉ trưa
+        </h3>
+
+        <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+            <div class="form-group" style="flex: 1;">
+                <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
+                    Giờ bắt đầu nghỉ trưa <span style="color: #ff5252;">*</span>
+                </label>
+                <input type="time" name="lunch_break_start" value="12:00"
+                    style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+                <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
+                    Giờ kết thúc nghỉ trưa <span style="color: #ff5252;">*</span>
+                </label>
+                <input type="time" name="lunch_break_end" value="13:00"
+                    style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+            </div>
+        </div>
+
+        <h3
+            style="color: var(--accent-color); font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+            <i class="fa-solid fa-calendar-check" style="margin-right: 8px;"></i> Chế độ & Quy định
+        </h3>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
+                Số ngày nghỉ phép có hưởng lương (năm)
+            </label>
+            <input type="number" name="annual_paid_leave_days" value="14"
+                style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+            <small style="color: #666;">Mặc định theo luật lao động là 12-14 ngày.</small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
+                Số tháng nghỉ thai sản
+            </label>
+            <input type="number" name="maternity_leave_months" value="6"
+                style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
+                Số lần được chỉnh sửa điểm danh tối đa / tháng <span style="color: #ff5252;">*</span>
+            </label>
+            <input type="number" name="max_attendance_correction_per_month" value="3"
+                style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+            <small style="color: #666;">Dùng để giới hạn nhân viên tự ý sửa log check-in/out.</small>
+        </div>
+
+        <div class="form-actions"
+            style="border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; justify-content: flex-end;">
+            <button type="submit"
+                style="background-color: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                Lưu cấu hình hệ thống
+            </button>
+        </div>
+    </form>
+</div>
