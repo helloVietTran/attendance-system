@@ -15,6 +15,16 @@ router = APIRouter(prefix="/settings", tags=["System Settings"])
 def read_settings(db: Session = Depends(get_db)):
     return ResponseSchema(data=setting_service.get_all_settings(db))
 
+@router.put("/", response_model=ResponseSchema[List[SystemSettingResponse]])
+def update_multiple_settings(
+    configs: List[SystemSettingUpdate],
+    db: Session = Depends(get_db),
+    _=Depends(role_required([UserRole.ADMIN.value]))
+):
+    """Cập nhật hàng loạt các thông số cấu hình hệ thống"""
+    updated_items = setting_service.update_multiple_settings(db, configs=configs)
+    return ResponseSchema(data=updated_items)
+
 @router.patch("/{key}", response_model=ResponseSchema[SystemSettingResponse])
 def update_system_config(
     key: SystemSettingKey,
