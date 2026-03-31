@@ -14,7 +14,6 @@ router = APIRouter(prefix="/absences", tags=["Absence"])
 def read_employee_absences(employee_id: int, db: Session = Depends(get_db)):
     return ResponseSchema(data=absence_service.get_absences_by_employee(db, employee_id=employee_id))
 
-
 @router.post("/", response_model=ResponseSchema[AbsenceResponse])
 def create_absence(
     obj_in: AbsenceCreate,

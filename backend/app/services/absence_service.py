@@ -32,7 +32,7 @@ class AbsenceService:
                 detail=f"Nhân viên đã có đơn nghỉ phép từ {overlap_check.start_date} đến {overlap_check.end_date}"
             )
 
-        db_obj = Absence(**obj_in.model_dump())
+        db_obj = Absence(**obj_in.model_dump(), employee_id=empId)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

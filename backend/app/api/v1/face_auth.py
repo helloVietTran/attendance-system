@@ -6,19 +6,20 @@ import numpy as np
 from datetime import datetime
 
 from app.db.session import get_db
-from app.models.employee import Employee
+from app.models.employee import Employee, UserRole
 from app.models.face_template import FaceTemplate
 from app.services.face_recognition_service import face_service
 from app.services.attendance_service import attendance_service
 from app.schemas.attendance_log import AttendanceCreate, AttendanceResponse
 from app.schemas.base import ResponseSchema
+from app.core.dependencies import role_required
 
 router = APIRouter(prefix="/face-auth", tags=["Face Recognition"])
 
-@router.post("/register/{employee_id}")
+@router.post("/register/{employee_id}", dependencies=[Depends(role_required([UserRole.HR.value, UserRole.ADMIN.value]))])
 async def register_face_samples(
     employee_id: int, 
-    files: List[UploadFile] = File(...), 
+    files: List[UploadFile] = File(...),
     db: Session = Depends(get_db)
 ):
     """HR đăng ký khuôn mặt cho nhân viên từ 20 ảnh mẫu"""

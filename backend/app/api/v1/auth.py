@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 
 from app.db.session import get_db
 from app.models.employee import Employee
@@ -9,7 +8,8 @@ from app.schemas.employee import EmployeeRead
 from app.schemas.base import ResponseSchema
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# from passlib.context import CryptContext
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # hệ thống này dùng để tích hợp nên không hash password
 @router.post("/login", response_model=ResponseSchema[EmployeeRead])
