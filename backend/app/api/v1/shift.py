@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.shift_service import shift_service
 from app.schemas.shift_change_request import ShiftChangeCreate, ShiftChangeResponse
-from app.core.dependencies import get_current_user
+from app.core.dependency import get_current_user
 from app.schemas.base import ResponseSchema
 
 router = APIRouter(prefix="/shift-requests", tags=["Shift Requests"])

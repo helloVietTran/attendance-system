@@ -5,13 +5,13 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.db.session import init_db, SessionLocal
 from app.api.v1.calendar import router as calendar_router
-from app.api.v1.settings import router as setting_router
+from app.api.v1.setting import router as setting_router
 from app.api.v1.attendance import router as attendance_router
 from app.api.v1.shift import router as shift_router
 from app.api.v1.employee import router as employee_router
 from app.api.v1.notification import router as notification_router
 from app.api.v1.fix_attendance import router as fix_attendance_router
-from app.api.v1.absences import router as absence_router
+from app.api.v1.absence import router as absence_router
 from app.api.v1.payroll import router as payroll_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.admin import router as admin_router
@@ -19,7 +19,7 @@ from app.api.v1.overtime import router as overtime_router
 from app.api.v1.face_auth import router as face_auth_router
 
 from fastapi.exceptions import HTTPException, RequestValidationError
-from app.core.exceptions import http_exception_handler, validation_exception_handler
+from app.core.exception import http_exception_handler, validation_exception_handler
 
 from app.services.setting_service import setting_service
 from app.models import (

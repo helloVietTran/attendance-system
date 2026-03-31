@@ -8,7 +8,7 @@ from decimal import Decimal
 
 from app.main import app
 from app.db.session import Base, get_db
-from app.core.dependencies import get_current_user
+from backend.app.core.dependency import get_current_user
 
 from app.models.shift_change_request import ShiftChangeRequest, RequestStatus
 from app.models.employee import Employee, UserRole

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.core.dependencies import role_required, get_current_user
+from app.core.dependency import role_required, get_current_user
 from app.models.employee import UserRole
 from app.schemas.base import ResponseSchema
 from app.schemas.absence import LongTermAbsenceCreate, AbsenceResponse, AbsenceApprove

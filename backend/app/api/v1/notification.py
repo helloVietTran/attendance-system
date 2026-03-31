@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from app.core.dependencies import get_current_user
+from app.core.dependency import get_current_user
 from app.db.session import get_db
 from app.services.notification_service import notification_service
 from app.schemas.notification import NotificationResponse

@@ -3,7 +3,7 @@ from typing import Dict
 from sqlalchemy.orm import Session
 
 from app.models.employee import UserRole
-from app.core.dependencies import role_required
+from app.core.dependency import role_required
 from app.schemas.base import ResponseSchema
 from app.schemas.timesheet_period_control import TimesheetPeriodResponse
 from app.db.session import get_db

@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.schemas.vacation import VacationCreate, VacationUpdate, VacationResponse
 from app.schemas.base import ResponseSchema
 from app.services.calendar_service import calendar_service
-from app.core.dependencies import role_required
+from app.core.dependency import role_required
 from app.models.employee import UserRole
 
 router = APIRouter(prefix="/calendar", tags=["Calendar"])

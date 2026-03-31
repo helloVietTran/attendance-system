@@ -8,7 +8,7 @@ from app.services.attendance_service import attendance_service
 from app.schemas.attendance_log import AttendanceResponse, AttendanceCreate
 from app.schemas.daily_work_report import DailyWorkReportResponse
 from app.schemas.base import ResponseSchema
-from app.core.dependencies import get_current_user
+from app.core.dependency import get_current_user
 
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
 

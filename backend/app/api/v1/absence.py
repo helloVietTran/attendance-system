@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.services.absence_service import absence_service
 from app.schemas.absence import AbsenceCreate, AbsenceResponse
 from app.schemas.base import ResponseSchema
-from app.core.dependencies import get_current_user
+from app.core.dependency import get_current_user
 
 router = APIRouter(prefix="/absences", tags=["Absence"])
 

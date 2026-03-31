@@ -12,7 +12,7 @@ from app.services.face_recognition_service import face_service
 from app.services.attendance_service import attendance_service
 from app.schemas.attendance_log import AttendanceCreate, AttendanceResponse
 from app.schemas.base import ResponseSchema
-from app.core.dependencies import role_required
+from app.core.dependency import role_required
 
 router = APIRouter(prefix="/face-auth", tags=["Face Recognition"])
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.session import get_db
-from app.core.dependencies import role_required
+from app.core.dependency import role_required
 from app.models.employee import UserRole
 from app.services.setting_service import setting_service
 from app.schemas.system_setting import SystemSettingResponse, SystemSettingUpdate, SystemSettingKey

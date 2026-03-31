@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_current_user
+from app.core.dependency import get_current_user
 from app.schemas.base import ResponseSchema
 from app.db.session import get_db
 from app.schemas.overtime_request import OvertimeCreate, OvertimeResponse
