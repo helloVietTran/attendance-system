@@ -19,7 +19,6 @@ class MonthlyWorkReport(Base):
     # Các chỉ số tổng hợp (Đơn vị: Phút)
     work_minutes = Column(Integer, default=0)       # Tổng phút làm việc thực tế + bù trừ
     lack_minutes = Column(Integer, default=0)       # Tổng phút thiếu hụt
-    over_time_minutes = Column(Integer, default=0)  # Tổng phút tăng ca 
 
     estimated_minutes = Column(Integer, default=0)  # Số phút tạm tính cho các ngày chưa làm
     
@@ -28,6 +27,3 @@ class MonthlyWorkReport(Base):
 
     # Quan hệ
     employee = relationship("Employee", backref="monthly_reports")
-
-    def __repr__(self):
-        return f"<MonthlyWorkReport(emp_id={self.employee_id}, period={self.period_start} to {self.period_end})>"

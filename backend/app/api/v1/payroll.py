@@ -33,12 +33,11 @@ def lock_timesheet(
     "/calculate-batch", 
     response_model=ResponseSchema[Dict],
     summary="Tính toán bảng công hàng tháng cho toàn bộ nhân viên",
-    _=Depends(role_required([UserRole.ADMIN.value, UserRole.HR.value]))
+    dependencies=[Depends(role_required([UserRole.ADMIN.value, UserRole.HR.value]))],
 )
 def calculate_batch_payroll(
     closing_day: int = Query(20, ge=1, le=28, description="Ngày chốt công hàng tháng"),
     db: Session = Depends(get_db),
-    admin_id = 99
 ):
 
     result = payroll_service.calculate_all_employees_payroll(db, closing_day)

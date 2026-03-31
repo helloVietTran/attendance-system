@@ -12,6 +12,8 @@ from app.schemas.shift_change_request import ShiftChangeResponse
 from app.services.fix_attendance_service import fix_attendance_service
 from app.services.shift_service import shift_service
 from app.services.absence_service import absence_service
+from app.schemas.overtime_request import OvertimeApprove, OvertimeResponse
+from app.services import overtime_service
 
 router = APIRouter(
     prefix="/admin",
@@ -46,3 +48,19 @@ def approve_shift_change(
     admin_id: int = 99
 ):
     return ResponseSchema(data=shift_service.approve_request(db, request_id, admin_id))
+
+@router.patch("/overtimes/{ot_id}/approve", response_model=ResponseSchema[OvertimeResponse])
+def approve_overtime_request(
+    ot_id: int, 
+    obj_in: OvertimeApprove, 
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_user) 
+):
+    """Admin duyệt hoặc từ chối đơn OT"""
+    result = overtime_service.approve_request(
+        db, 
+        ot_id=ot_id, 
+        admin_id=current_admin["id"], 
+        obj_in=obj_in
+    )
+    return ResponseSchema(data=result)

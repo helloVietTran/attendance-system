@@ -12,8 +12,6 @@ class AbsenceTracker(Base):
     
     # Số ngày nghỉ liên tiếp tính đến hiện tại
     consecutive_days_off = Column(Integer, default=0)
-    
-    last_present_date = Column(Date, nullable=True)
 
     has_alerted_hr = Column(Boolean, default=False)
     

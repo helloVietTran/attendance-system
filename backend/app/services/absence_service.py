@@ -1,4 +1,6 @@
 
+from datetime import date
+
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from fastapi import HTTPException
@@ -89,12 +91,12 @@ class AbsenceService:
         notif_type = ""
 
         if obj_in.status == ApprovalStatus.APPROVED:
-            notif_title = "Đơn nghỉ phép đã được duyệt! 🟢"
+            notif_title = "Đơn nghỉ phép đã được duyệt!"
             notif_content = f"Đơn nghỉ từ {db_obj.start_date} đến {db_obj.end_date} của bạn đã được chấp thuận."
             notif_type = "ABSENCE_APPROVED"
         
         elif obj_in.status == ApprovalStatus.REJECTED:
-            notif_title = "Đơn nghỉ phép bị từ chối 🔴"
+            notif_title = "Đơn nghỉ phép bị từ chối"
             notif_content = f"Đơn nghỉ của bạn không được duyệt. Lý do: {obj_in.note or 'Không có lý do cụ thể'}"
             notif_type = "ABSENCE_REJECTED"
 

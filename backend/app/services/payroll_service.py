@@ -63,8 +63,7 @@ class PayrollService:
     def _calculate_actual_metrics(self, db: Session, employee_id: int, actual_reports: List[DailyWorkReport]) -> Dict[str, int]:
         totals = {
             "work": 0,
-            "lack": 0,
-            "ot": 0
+            "lack": 0
         }
 
         for report in actual_reports:
@@ -79,17 +78,9 @@ class PayrollService:
                 totals["work"] += 480
                 continue
 
-            # Rule 2: nếu hôm đó nợ bao nhiêu thì ot lại bấy nhiêu
-            day_lack = report.lack_minutes or 0
-            day_ot = report.overtime_minutes or 0
-            work_time = report.work_time_minutes or 0
-
-            net_lack = max(0, day_lack - day_ot)
-            net_ot = max(0, day_ot - day_lack)
-
-            totals["work"] += min(480, work_time + min(day_lack, day_ot))
-            totals["lack"] += net_lack
-            totals["ot"] += net_ot
+            totals["work"] += report.work_time_minutes or 0
+            totals["lack"] += report.lack_minutes or 0
+            totals["ot"] += report.overtime_minutes or 0
 
         return totals
     
@@ -105,7 +96,7 @@ class PayrollService:
             Absence.status == ApprovalStatus.APPROVED,
             Absence.start_date <= last_day_of_month,
             Absence.end_date >= first_day,
-            Absence.absence_type_id.in_([3, 4])
+            Absence.absence_type_id.in_([3, 4]) # 3: Thai sản, 4: Nghỉ ốm dài ngày
         ).first()
 
         if is_special_leave:
@@ -134,7 +125,6 @@ class PayrollService:
             period_end=last_day_of_month,
             work_minutes=total_work,
             lack_minutes=actual_totals["lack"],
-            over_time_minutes=actual_totals["ot"],
             estimated_minutes=estimated_minutes
         )
 

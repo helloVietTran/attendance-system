@@ -15,6 +15,7 @@ from app.api.v1.absences import router as absence_router
 from app.api.v1.payroll import router as payroll_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.admin import router as admin_router
+from app.api.v1.overtime import router as overtime_router
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from app.core.exceptions import http_exception_handler, validation_exception_handler
@@ -24,7 +25,7 @@ from app.models import (
     absence_tracker, absence, attendance_correction, attendance_log, 
     daily_work_report, employee_benefit_log, employee, notification, 
     overtime_request, shift_change_request, shift, system_setting, 
-    timesheet_monthly_summary, timesheet_period_control, vacation
+    timesheet_period_control, vacation
 )
 from app.core.scheduler import start_scheduler
 from app.core.config import SECRET_KEY
@@ -85,3 +86,4 @@ app.include_router(absence_router, prefix="/api/v1")
 app.include_router(payroll_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1" )
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(overtime_router, prefix="/api/v1")
