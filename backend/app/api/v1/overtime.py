@@ -5,7 +5,7 @@ from app.core.dependencies import get_current_user
 from app.schemas.base import ResponseSchema
 from app.db.session import get_db
 from app.schemas.overtime_request import OvertimeCreate, OvertimeResponse
-from app.services import overtime_service
+from app.services.overtime_service import overtime_service
 
 router = APIRouter(prefix="/overtimes", tags=["Overtime Management"])
 

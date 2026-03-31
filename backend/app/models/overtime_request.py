@@ -28,7 +28,7 @@ class OvertimeRequest(Base):
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     work_date = Column(Date, nullable=False, index=True)
 
-    actual_work_time = Column(Integer, nullable=False) # số phút làm thêm
+    actual_work_time = Column(Integer, nullable=True, default=0) # số phút làm thêm
     
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
