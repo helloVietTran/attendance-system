@@ -32,7 +32,7 @@ class AttendanceService:
             extract('month', AttendanceLog.log_date) == month,
             extract('year', AttendanceLog.log_date) == year
         ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
-    
+        
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
         # lấy các setting cần thiết
         lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")

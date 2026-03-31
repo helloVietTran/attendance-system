@@ -12,10 +12,6 @@ from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
-@router.post("/logs", response_model=ResponseSchema[AttendanceResponse])
-def add_attendance_log(obj_in: AttendanceCreate, db: Session = Depends(get_db)):
-    """API để máy chấm công hoặc app mobile gửi log về"""
-    return ResponseSchema(data=attendance_service.ingest_log(db, obj_in))
 
 @router.get("/logs/{employee_id}", response_model=ResponseSchema[AttendanceResponse])
 def get_attendance_logs_by_empId(

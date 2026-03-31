@@ -16,6 +16,7 @@ from app.api.v1.payroll import router as payroll_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.admin import router as admin_router
 from app.api.v1.overtime import router as overtime_router
+from app.api.v1.face_auth import router as face_auth_router
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from app.core.exceptions import http_exception_handler, validation_exception_handler
@@ -87,3 +88,4 @@ app.include_router(payroll_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1" )
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(overtime_router, prefix="/api/v1")
+app.include_router(face_auth_router, prefix="/api/v1")
