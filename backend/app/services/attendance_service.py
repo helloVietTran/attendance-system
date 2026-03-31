@@ -8,7 +8,7 @@ from app.schemas.attendance_log import AttendanceCreate
 from app.models.daily_work_report import DailyWorkReport
 from app.services.setting_service import setting_service
 from app.models.absence import Absence, ApprovalStatus
-from backend.app.models.overtime_request import OvertimeRequest
+from app.models.overtime_request import OvertimeRequest
 
 class AttendanceService:
     def ingest_log(self, db: Session, obj_in: AttendanceCreate):
