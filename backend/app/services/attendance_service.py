@@ -11,6 +11,7 @@ from app.models.overtime_request import OvertimeRequest
 from app.schemas.attendance_log import AttendanceCreate
 
 from app.services.setting_service import setting_service
+from app.services.calendar_service import calendar_service
 
 class AttendanceService:
     def ingest_log(self, db: Session, obj_in: AttendanceCreate):
@@ -36,6 +37,12 @@ class AttendanceService:
         ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
 
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
+        working_days = calendar_service.get_working_days_list(db, work_date, work_date)
+
+        if not working_days:
+            print(f"Bỏ qua xử lý: Ngày {work_date} không phải là ngày làm việc quy định.")
+            return None
+
         # lấy các setting cần thiết
         lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")
         lunch_end_str = setting_service.get_setting_value(db, "lunch_break_end")

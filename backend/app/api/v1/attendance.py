@@ -22,7 +22,16 @@ def get_attendance_logs_by_empId(
     """Lấy log chấm công tháng của 1 nhân viên"""
     return ResponseSchema(data=attendance_service.get_attendance_logs_by_month(db, employee_id, month, year))
 
-@router.post("/logs/calculate", response_model=ResponseSchema[DailyWorkReportResponse])
+@router.post(
+    "/logs/calculate", 
+    response_model=ResponseSchema[DailyWorkReportResponse],
+    summary="Tính toán công ngày",
+    description=(
+        "Kích hoạt tiến trình tính toán dữ liệu công cho một ngày cụ thể. "
+        "Hệ thống sẽ tổng hợp từ Logs quẹt thẻ, Đơn xin nghỉ (Absence), Đơn làm thêm (OT) "
+        "và kiểm tra lịch làm việc (Vacation/Compensation) để ra bảng công cuối cùng."
+    )
+)
 def calculate_work_day(
     target_date: date, 
     db: Session = Depends(get_db),
@@ -33,16 +42,20 @@ def calculate_work_day(
 
     return ResponseSchema(data=result)
 
-@router.get("/daily-reports/{employee_id}", response_model=ResponseSchema[List[DailyWorkReportResponse]])
+@router.get(
+    "/daily-reports/{employee_id}", 
+    response_model=ResponseSchema[List[DailyWorkReportResponse]],
+    summary="Bảng công chi tiết tháng",
+    description=(
+        "Lấy danh sách báo cáo công hàng ngày đã được tính toán. "
+        "Dữ liệu trả về bao gồm các chỉ số: Tổng phút làm việc, số phút đi muộn, về sớm. v.v"
+    )
+)
 def get_daily_work_reports(
     employee_id: int,
     month: int = Query(..., ge=1, le=12, description="Tháng cần lấy báo cáo"),
     year: int = Query(default=datetime.now().year, description="Năm cần lấy báo cáo"),
     db: Session = Depends(get_db)
 ):
-    """
-    Lấy bảng công chi tiết của nhân viên trong tháng.
-    Dữ liệu bao gồm: Giờ vào/ra, số phút đi muộn, về sớm, OT, v.v.
-    """
     reports = attendance_service.get_daily_work_reports_by_month(db, employee_id, month, year)
     return ResponseSchema(data=reports)

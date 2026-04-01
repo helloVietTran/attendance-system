@@ -12,13 +12,11 @@ from app.core.config import OVER_TIME_MONTHLY_LIMIT_MINS, OVER_TIME_YEARLY_LIMIT
 
 class OvertimeService:
     def create_request(self, db: Session, obj_in: OvertimeCreate, emp_id: int):
-        
         multiplier_value = obj_in.ot_type.multiplier
         
         employee = db.query(Employee).options(joinedload(Employee.shift)).filter(
             Employee.id == emp_id
         ).first()
-
         if not employee or not employee.shift:
             raise HTTPException(
                 status_code=404, 
