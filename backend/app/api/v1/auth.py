@@ -7,7 +7,7 @@ from app.schemas.auth import LoginSchema
 from app.schemas.employee import EmployeeRead
 from app.schemas.base import ResponseSchema
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Xác thực & Phiên làm việc"])
 # from passlib.context import CryptContext
 # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

@@ -7,7 +7,7 @@ from app.schemas.shift_change_request import ShiftChangeCreate, ShiftChangeRespo
 from app.core.dependency import get_current_user
 from app.schemas.base import ResponseSchema
 
-router = APIRouter(prefix="/shift-requests", tags=["Shift Requests"])
+router = APIRouter(prefix="/shift-requests", tags=["Ca làm"])
 
 @router.post("/", response_model=ResponseSchema[ShiftChangeResponse])
 def create_new_request(

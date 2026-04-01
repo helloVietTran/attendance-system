@@ -9,7 +9,7 @@ from typing import List, Dict
 from app.models.employee import Employee
 from app.models.daily_work_report import DailyWorkReport
 from app.models.monthly_report import MonthlyWorkReport
-from app.models.absence import Absence, ApprovalStatus
+from app.models.absence import Absence, AbsenceType, ApprovalStatus
 from app.models.attendance_correction import AttendanceCorrection
 from app.models.timesheet_period_control import TimesheetPeriodControl
 
@@ -90,13 +90,13 @@ class PayrollService:
         first_day = today.replace(day=1)  
         last_day_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1])
         
-        # Thai sản, nghỉ ốm 1 tháng sẽ xử lý riêng
+        # Thai sản sẽ xử lý riêng
         is_special_leave = db.query(Absence).filter(
             Absence.employee_id == employee_id,
             Absence.status == ApprovalStatus.APPROVED,
             Absence.start_date <= last_day_of_month,
             Absence.end_date >= first_day,
-            Absence.absence_type_id.in_([3, 4]) # 3: Thai sản, 4: Nghỉ ốm dài ngày
+            Absence.absence_type == AbsenceType.MATERNITY
         ).first()
 
         if is_special_leave:

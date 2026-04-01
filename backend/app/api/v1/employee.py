@@ -7,7 +7,7 @@ from app.services.employee_service import employee_service
 from app.schemas.base import PaginationMetadata, PaginationResponse, ResponseSchema
 from app.schemas.employee import EmployeeWithShiftResponse
 
-router = APIRouter(prefix="/employees", tags=["Employees"])
+router = APIRouter(prefix="/employees", tags=["Nhân viên"])
 
 @router.get("/search", response_model=PaginationResponse[EmployeeWithShiftResponse])
 def search_employees(

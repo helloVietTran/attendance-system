@@ -7,7 +7,7 @@ from app.services.fix_attendance_service import fix_attendance_service
 from app.schemas.attendance_correction import CorrectionCreate, CorrectionResponse
 from app.schemas.base import ResponseSchema
 
-router = APIRouter(prefix="/fix-requests", tags=["Fix Attendance Request"])
+router = APIRouter(prefix="/fix-requests", tags=["Yêu cầu sửa công"])
 
 @router.post("/", response_model=ResponseSchema[CorrectionResponse])
 def request_fix_attendance(

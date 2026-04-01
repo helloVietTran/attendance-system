@@ -1,3 +1,6 @@
+from datetime import date, timedelta
+
+from sqlalchemy import func, and_, or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.vacation import Vacation
@@ -43,5 +46,35 @@ class CalendarService:
         if not vacation:
             raise HTTPException(status_code=404, detail="Không tìm thấy ngày nghỉ này")
         return vacation
+    
+    def get_working_days_list(self, db: Session, start: date, end: date):
+        days = []
+        curr = start
+        while curr <= end:
+            if curr.weekday() < 5:
+                is_holiday = db.query(Vacation).filter(
+                    or_(
+                        # TH1: Ngày nghỉ cố định (is_recurring = False)
+                        and_(
+                            Vacation.is_recurring == False,
+                            Vacation.start_date <= curr,
+                            Vacation.end_date >= curr
+                        ),
+                        # TH2: Ngày lễ lặp lại hàng năm (is_recurring = True)
+                        # So sánh Tháng và Ngày, bỏ qua Năm
+                        and_(
+                            Vacation.is_recurring == True,
+  
+                            func.date_format(Vacation.start_date, '%m-%d') <= curr.strftime('%m-%d'),
+                            func.date_format(Vacation.end_date, '%m-%d') >= curr.strftime('%m-%d')
+                        )
+                    )
+                ).first()
+
+                if not is_holiday:
+                    days.append(curr)
+
+            curr += timedelta(days=1)
+        return days
 
 calendar_service = CalendarService()

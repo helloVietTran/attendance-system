@@ -9,7 +9,7 @@ from app.services.setting_service import setting_service
 from app.schemas.system_setting import SystemSettingResponse, SystemSettingUpdate, SystemSettingKey
 from app.schemas.base import ResponseSchema
 
-router = APIRouter(prefix="/settings", tags=["System Settings"])
+router = APIRouter(prefix="/settings", tags=["Cài đặt hệ thống"])
 
 @router.get("/", response_model=ResponseSchema[List[SystemSettingResponse]])
 def read_settings(db: Session = Depends(get_db)):

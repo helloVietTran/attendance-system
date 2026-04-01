@@ -10,7 +10,7 @@ from app.schemas.daily_work_report import DailyWorkReportResponse
 from app.schemas.base import ResponseSchema
 from app.core.dependency import get_current_user
 
-router = APIRouter(prefix="/attendance", tags=["Attendance"])
+router = APIRouter(prefix="/attendance", tags=["Chấm công & Báo cáo công"])
 
 @router.get("/logs/{employee_id}", response_model=ResponseSchema[AttendanceResponse])
 def get_attendance_logs_by_empId(

@@ -1,14 +1,22 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import date, datetime
 from typing import Optional
 
 from app.models.absence import ApprovalStatus, AbsenceType
 
-class AbsenceBase(BaseModel):
-    absence_type: AbsenceType = Field(..., description="Loại nghỉ: annual, wedding, funeral, paternity")
-    start_date: date
-    end_date: date
-    reason: Optional[str] = Field(None, max_length=500, json_schema_extra={"example": "Nghỉ kết hôn"})
+class AbsencePlanCreate(BaseModel):
+    absence_type: AbsenceType = Field(
+        ...,
+        description="Loại nghỉ: annual, wedding, funeral, maternity, paternity"
+    )
+    start_date: date = Field(..., example="2026-04-10")
+    end_date: date = Field(..., example="2026-04-12")
+    reason: Optional[str] = Field(
+        None, 
+        max_length=500, 
+        description="Lý do xin nghỉ phép",
+        example="Nghỉ về quê có việc gia đình"
+    )
 
     @field_validator('end_date')
     def check_dates(cls, v, info):
@@ -16,39 +24,41 @@ class AbsenceBase(BaseModel):
             raise ValueError("Ngày kết thúc không được trước ngày bắt đầu")
         return v
 
-class AbsenceCreate(AbsenceBase):
-    pass
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "absence_type": "annual",
+                "start_date": "2026-04-15",
+                "end_date": "2026-04-17",
+                "reason": "Nghỉ phép năm đi du lịch"
+            }
+        }
 
-class AbsenceApprove(BaseModel):
-    status: Optional[ApprovalStatus] = None
+class AbsencePlanApprove(BaseModel):
+    status: Optional[ApprovalStatus] = Field(
+        None, 
+        description="Trạng thái phê duyệt: 'approved' (Đồng ý) hoặc 'rejected' (Từ chối)"
+    )
     reason: Optional[str] = None
 
-class AbsenceResponse(BaseModel):
+class AbsencePlanResponse(BaseModel):
     id: int
     employee_id: int
-    absence_type: AbsenceType
     start_date: date
     end_date: date
     status: ApprovalStatus
     reason: Optional[str]
-    actual_days: int
-    paid_days: int
-    unpaid_days: int
-    special_paid_days: int
     created_at: datetime
-
-class LongTermAbsenceCreate(BaseModel):
+    
+    class Config:
+        from_attributes = True
+    
+class AbsenceResponse(BaseModel):
+    id: int
     employee_id: int
-    absence_type: AbsenceType
-    start_date: date
-    end_date: date
-    reason: Optional[str] = "Nghỉ dài hạn theo chế độ (Admin tạo)"
-
-    @field_validator('end_date')
-    def check_duration(cls, v, info):
-        if 'start_date' in info.data:
-            start = info.data['start_date']
-            duration = (v - start).days
-            if duration < 30:
-                raise ValueError("Kỳ nghỉ dài hạn phải có thời gian trên 30 ngày.")
-        return v
+    work_date: date
+    is_paid: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True

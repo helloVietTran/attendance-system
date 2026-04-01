@@ -9,7 +9,7 @@ from app.services.calendar_service import calendar_service
 from app.core.dependency import role_required
 from app.models.employee import UserRole
 
-router = APIRouter(prefix="/calendar", tags=["Calendar"])
+router = APIRouter(prefix="/calendar", tags=["Lịch làm việc"])
 
 @router.post("/vacations", response_model=ResponseSchema[VacationResponse])
 def create_vacation(

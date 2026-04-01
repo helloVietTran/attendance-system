@@ -8,7 +8,7 @@ from app.services.notification_service import notification_service
 from app.schemas.notification import NotificationResponse
 from app.schemas.base import PaginationResponse, ResponseSchema, PaginationMetadata
 
-router = APIRouter(prefix="/notifications", tags=["Notifications"])
+router = APIRouter(prefix="/notifications", tags=["Thông báo"])
 
 @router.get("/{employee_id}", response_model=PaginationResponse[NotificationResponse])
 def get_notifications(

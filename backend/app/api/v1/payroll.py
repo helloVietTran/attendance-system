@@ -9,7 +9,7 @@ from app.schemas.timesheet_period_control import TimesheetPeriodResponse
 from app.db.session import get_db
 from app.services.payroll_service import payroll_service
 
-router = APIRouter(prefix="/payroll", tags=["Payroll Management"])
+router = APIRouter(prefix="/payroll", tags=["QL chốt công"])
 
 @router.post("/lock-period", response_model=ResponseSchema[TimesheetPeriodResponse])
 def lock_timesheet(

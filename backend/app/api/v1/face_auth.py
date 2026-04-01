@@ -14,7 +14,7 @@ from app.schemas.attendance_log import AttendanceCreate, AttendanceResponse
 from app.schemas.base import ResponseSchema
 from app.core.dependency import role_required
 
-router = APIRouter(prefix="/face-auth", tags=["Face Recognition"])
+router = APIRouter(prefix="/face-auth", tags=["Nhận diện khuôn mặt"])
 
 @router.post("/register/{employee_id}", dependencies=[Depends(role_required([UserRole.HR.value, UserRole.ADMIN.value]))])
 async def register_face_samples(

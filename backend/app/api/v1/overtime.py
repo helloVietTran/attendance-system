@@ -7,7 +7,7 @@ from app.db.session import get_db
 from app.schemas.overtime_request import OvertimeCreate, OvertimeResponse
 from app.services.overtime_service import overtime_service
 
-router = APIRouter(prefix="/overtimes", tags=["Overtime Management"])
+router = APIRouter(prefix="/overtimes", tags=["Quản lý làm thêm giờ"])
 
 @router.post("/", response_model=ResponseSchema[OvertimeResponse])
 def request_ot(
