@@ -5,13 +5,12 @@ from datetime import date, datetime
 
 from app.db.session import get_db
 from app.services.attendance_service import attendance_service
-from app.schemas.attendance_log import AttendanceResponse, AttendanceCreate
+from app.schemas.attendance_log import AttendanceResponse
 from app.schemas.daily_work_report import DailyWorkReportResponse
 from app.schemas.base import ResponseSchema
 from app.core.dependency import get_current_user
 
 router = APIRouter(prefix="/attendance", tags=["Attendance"])
-
 
 @router.get("/logs/{employee_id}", response_model=ResponseSchema[AttendanceResponse])
 def get_attendance_logs_by_empId(
@@ -23,17 +22,15 @@ def get_attendance_logs_by_empId(
     """Lấy log chấm công tháng của 1 nhân viên"""
     return ResponseSchema(data=attendance_service.get_attendance_logs_by_month(db, employee_id, month, year))
 
-# logic core
 @router.post("/logs/calculate", response_model=ResponseSchema[DailyWorkReportResponse])
 def calculate_work_day(
     target_date: date, 
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """Tính toán dữ liệu công dựa trên Logs và Settings Cache"""
-    result = attendance_service.process_daily_attendance(db, employee_id=current_user["id"] ,target_date=target_date)
-    if not result:
-        return ResponseSchema(data=None, message="Không tìm thấy dữ liệu chấm công", status=900)
+    """Tính toán dữ liệu công dựa trên Logs và Overtime request"""
+    result = attendance_service.process_daily_attendance(db, employee_id=current_user["id"] ,work_date=target_date)
+
     return ResponseSchema(data=result)
 
 @router.get("/daily-reports/{employee_id}", response_model=ResponseSchema[List[DailyWorkReportResponse]])

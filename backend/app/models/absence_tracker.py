@@ -50,7 +50,6 @@ class AbsenceTracker(Base):
             actual_deduct_current = min(remaining_needed, avail_current_year)
             self.current_year_used += actual_deduct_current
 
-
     def reset_for_new_year(self):
         """
         Logic chuyển giao khi sang năm mới:

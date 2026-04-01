@@ -4,11 +4,13 @@ from datetime import date, time
 from fastapi import HTTPException
 
 from app.models.attendance_log import AttendanceLog
-from app.schemas.attendance_log import AttendanceCreate
 from app.models.daily_work_report import DailyWorkReport
-from app.services.setting_service import setting_service
 from app.models.absence import Absence, ApprovalStatus
 from app.models.overtime_request import OvertimeRequest
+
+from app.schemas.attendance_log import AttendanceCreate
+
+from app.services.setting_service import setting_service
 
 class AttendanceService:
     def ingest_log(self, db: Session, obj_in: AttendanceCreate):
@@ -32,7 +34,7 @@ class AttendanceService:
             extract('month', AttendanceLog.log_date) == month,
             extract('year', AttendanceLog.log_date) == year
         ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
-        
+
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
         # lấy các setting cần thiết
         lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")
@@ -40,9 +42,6 @@ class AttendanceService:
         required_minutes = int(setting_service.get_setting_value(db, "required_work_minutes", 480))
 
         if not lunch_start_str or not lunch_end_str:
-            error_msg = f"Chưa có cấu hình chấm công (Lunch/Required Minutes)"
-            print(error_msg)
-
             raise HTTPException(status_code=400, detail="Hệ thống chưa cấu hình khung giờ làm việc chuẩn.")
 
         # lấy log đầu tiên và cuối cùng trong ngày
@@ -59,7 +58,7 @@ class AttendanceService:
         ).first()
 
         if has_absence or not logs:
-            return None
+              raise HTTPException(status_code=400, detail="Không tìm thấy dữ liệu chấm công hoặc nhân viên xin nghỉ.")
 
         first_log = logs[0]
         last_log = logs[-1]

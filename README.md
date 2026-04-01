@@ -13,7 +13,7 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 
 ### 1. Chấm công & Chốt công
 
-- Hệ thống cho phép chấm công bằng cách nhận diện khuôn mặt ( khi triển khai thực tế sẽ triển khai trong mạng LAN hoặc có thiết bị nhận diện khuôn mặt để ngăn cheating)
+- Hệ thống cho phép chấm công bằng cách nhận diện khuôn mặt.
 
 - Chốt công sẽ xảy ra random trong các ngày 18-20, (chốt công sớm để kịp chuyển lương vào mùng 1 tháng sau). Sau ngày chốt công, công số mặc định tạm tính đủ. Điều đó có nghĩa là từ ngày chốt công - cuối tháng, nếu có phát sinh đi muộn về sớm, thì sẽ bị trừ sang công số tháng sau.
 

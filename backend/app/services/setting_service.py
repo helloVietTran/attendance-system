@@ -11,7 +11,7 @@ class SettingService:
 
     def get_setting_value(self, db: Session, key: SystemSettingKey, default=None):
         key_str = key.value if hasattr(key, 'value') else key
-        
+
         # cache hit
         if key_str in self._cache:
             return self._cache[key_str]
@@ -66,7 +66,6 @@ class SettingService:
         return db.query(SystemSetting).all()
 
     def preload_all_settings(self, db: Session):
-        """Hàm này gọi khi khởi động Server để nạp toàn bộ vào RAM"""
         settings = db.query(SystemSetting).all()
         for s in settings:
             self._cache[s.key] = s.value
