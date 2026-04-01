@@ -5,8 +5,7 @@ from fastapi import HTTPException
 
 from app.models.attendance_log import AttendanceLog
 from app.models.daily_work_report import DailyWorkReport
-from app.models.absence import Absence, ApprovalStatus
-from app.models.overtime_request import OvertimeRequest
+from app.models.absence import Absence
 
 from app.schemas.attendance_log import AttendanceCreate
 
@@ -92,18 +91,6 @@ class AttendanceService:
         # Tính thiếu giờ / thừa giờ (OT)
         lack_minutes = max(0, required_minutes - actual_work_time)
         overtime_minutes = max(0, actual_work_time - required_minutes)
-
-        # Tính thời gian OT
-        if overtime_minutes > 0:
-            ot_request = db.query(OvertimeRequest).filter(
-                OvertimeRequest.employee_id == employee_id,
-                OvertimeRequest.work_date == work_date,
-                OvertimeRequest.status == ApprovalStatus.APPROVED
-            ).first()
-
-            if ot_request:
-                registered_duration = self._calculate_minutes(ot_request.start_time, ot_request.end_time)
-                ot_request.actual_work_time = min(registered_duration, overtime_minutes)
 
         daily_report = db.query(DailyWorkReport).filter(
             DailyWorkReport.employee_id == employee_id, 

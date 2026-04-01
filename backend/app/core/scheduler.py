@@ -6,6 +6,7 @@ from app.models.employee import Employee
 from app.services.attendance_service import attendance_service
 from app.services.benefit_service import benefit_service
 from app.services.shift_service import shift_service
+from app.services.overtime_service import overtime_service
 
 def calculate_all_employees_attendance():
     """Hàm quét toàn bộ nhân viên và tính công ngày hôm nay"""
@@ -41,6 +42,14 @@ def check_birthdays_job():
         benefit_service.process_daily_birthday_benefits(db)
     finally:
         db.close()
+        
+
+def caculate_overtime_job():
+    db = SessionLocal()
+    try:
+        overtime_service.batch_process_actual_ot(db, date.today())
+    finally:
+        db.close()
 
 # TODO: retry
 def start_scheduler():
@@ -65,6 +74,13 @@ def start_scheduler():
         check_birthdays_job,
         'cron',
         hour=3,
+        minute=0
+    )
+
+    scheduler.add_job(
+        caculate_overtime_job,
+        'cron',
+        hour=22,
         minute=0
     )
 
