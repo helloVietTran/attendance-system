@@ -9,7 +9,7 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 - Nguyễn Quang Huy - Frontend
 - Nguyễn Viết Bình Dương - Tester
 
-## ⚖️ Business Logic & Yêu cầu chức năng
+## ⚖️ Business Logic
 
 ### 1. Chấm công & Chốt công
 
@@ -30,6 +30,8 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 ### 3. Cấu hình
 - Có 2 ca làm việc chính thức: 8h30 - 17h30, 9h00 - 18h00, khi nhân viên đổi ca làm việc thì ca làm việc mới sẽ được áp dụng kể từ tháng sau
 - Nghỉ trưa 1 tiếng, cố định từ 12h00 - 13h00, thời gian nghỉ trưa không được tính vào thời gian làm việc
+- 1 tuần làm việc 5 ngày, nghỉ thứ 7, chủ nhật, nghỉ lễ hàng năm
+- Cho phép tạo ngày nghỉ nếu thời tiết xấu và làm bù vào thứ 7, chủ nhật vào tuần này
 
 ### 4. Nghỉ phép
 - Nhân viên được nghỉ 14 ngày phép full lương 1 năm. Các ngày nghỉ như hiếu, hỉ sẽ được nghỉ 3 ngày (không tính vào ngày 14 ngày nghỉ phép)
@@ -46,10 +48,9 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 
 ## Yêu cầu phi chức năng
 - Dữ liệu phải có độ tin cậy cao, dù nhân viên có yêu cầu sửa công được chấp nhận thì log ngày hôm đó vẫn được giữ nguyên
-- Dữ liệu phải tồn tại > 5 năm, có thể backup, audit log đầy đủ
-- Nhân viên có quyền phù hợp
-- Đề phòng cheating khuôn mặt
-- Phát hiện gian lận: ở lại công ty quá muộn, nghỉ liên tục nhiều ngày, ...
+- Dữ liệu phải tồn tại > 5 năm, có thể backup, có thể tracking ai thực hiện hành động
+- Nhân viên có quyền phù hợp, idempotency
+- Phát hiện bất thường: ở lại công ty quá muộn, nghỉ liên tục nhiều ngày, ...
 
 ## Các Tính Năng Chính
 

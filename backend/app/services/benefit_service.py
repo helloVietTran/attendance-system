@@ -37,7 +37,7 @@ class BenefitService:
                     benefit_type=BenefitType.BIRTHDAY,
                     work_value=480,
                     apply_date=today,
-                    description=f"Quà tặng sinh nhật cho {emp.full_name} 🎂"
+                    description=f"Quà tặng sinh nhật cho {emp.full_name}"
                 )
                 db.add(benefit_log)
 
