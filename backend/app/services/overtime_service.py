@@ -8,10 +8,9 @@ from app.models.absence import ApprovalStatus
 from app.schemas.overtime_request import OvertimeCreate, OvertimeApprove
 from app.models.employee import Employee
 from app.models.shift import Shift
-from app.core.config import OVER_TIME_MONTHLY_LIMIT_MINS, OVER_TIME_YEARLY_LIMIT_MINS
+from app.core.config import OVER_TIME_MONTHLY_LIMIT_MINS, OVER_TIME_YEARLY_LIMIT_MINS, OVERTIME_DAILY_LIMIT_MINS
 
 class OvertimeService:
-    # làm thêm không được quá 40h /1 tháng và 200h / 1 năm và không quá 12 giờ 1 ngày
     def create_request(self, db: Session, obj_in: OvertimeCreate, emp_id: int):
         
         multiplier_value = obj_in.ot_type.multiplier
@@ -46,10 +45,10 @@ class OvertimeService:
         calc_minutes = (obj_in.end_time.hour * 60 + obj_in.end_time.minute) - \
                 (obj_in.start_time.hour * 60 + obj_in.start_time.minute)
 
-        if calc_minutes > 60 * 4:
+        if calc_minutes > OVERTIME_DAILY_LIMIT_MINS:
             raise HTTPException(
                 status_code=400,
-                detail=f"Vi phạm định mức: Thời gian OT không được vượt quá 4 giờ một ngày"
+                detail=f"Vi phạm định mức: Thời gian OT không được vượt quá {OVERTIME_DAILY_LIMIT_MINS/60} giờ một ngày"
             )
 
         if current_month_total + calc_minutes > OVER_TIME_MONTHLY_LIMIT_MINS:

@@ -1,22 +1,22 @@
-
-from datetime import date
-
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from fastapi import HTTPException
-from app.models.absence import Absence, ApprovalStatus
+from datetime import timedelta
+
+from app.models.absence import Absence, AbsenceType, ApprovalStatus
 from app.models.employee import Employee
 from app.models.notification import Notification
 from app.schemas.absence import AbsenceCreate, AbsenceApprove, LongTermAbsenceCreate
+from app.models.vacation import Vacation
+from app.models.absence_tracker import AbsenceTracker
 
 class AbsenceService:
     def create_absence(self, db: Session, obj_in: AbsenceCreate, empId):
-        """Tạo đơn xin nghỉ phép với kiểm tra trùng lặp thời gian"""
+        # Kiểm tra đã tạo đơn nghỉ trước đó chưa
         emp = db.query(Employee).filter(Employee.id == empId).first()
         if not emp:
             raise HTTPException(status_code=404, detail="Nhân viên không tồn tại")
 
-        # kiểm tra trùng lặp (Overlap) với các đơn chưa bị từ chối
         overlap_check = db.query(Absence).filter(
             Absence.employee_id == empId,
             Absence.status != ApprovalStatus.REJECTED, 
@@ -32,7 +32,52 @@ class AbsenceService:
                 detail=f"Nhân viên đã có đơn nghỉ phép từ {overlap_check.start_date} đến {overlap_check.end_date}"
             )
 
-        db_obj = Absence(**obj_in.model_dump(), employee_id=empId)
+        # thời gian nghỉ thực tế, sau khi loại bỏ ngày lễ và cuối tuần
+        actual_days_off = self._calculate_actual_off_days(db, obj_in.start_date, obj_in.end_date)
+        if actual_days_off == 0:
+            raise HTTPException(status_code=400, detail="Khoảng thời gian nghỉ trùng vào ngày lễ hoặc cuối tuần.")
+
+        absence_type = obj_in.absence_type
+        special_paid_days = 0
+        days_to_deduct_from_tracker = 0
+        
+        if absence_type == AbsenceType.ANNUAL:
+            days_to_deduct_from_tracker = actual_days_off
+        else: # nghỉ chế độ
+            if absence_type.max_days != -1:
+                special_paid_days = min(actual_days_off, absence_type.max_days)
+                # Số ngày dư ra (nếu có) sẽ phải trừ vào quỹ 14 ngày
+                days_to_deduct_from_tracker = max(0, actual_days_off - absence_type.max_days)
+
+        #  xử lý trừ quỹ 14 ngày phép
+        paid_days = 0
+        unpaid_days = 0
+        
+        if days_to_deduct_from_tracker > 0:
+            tracker = db.query(AbsenceTracker).filter(AbsenceTracker.employee_id == empId).first()
+            remaining = tracker.total_remaining_leave if tracker else 0
+            
+            if remaining >= days_to_deduct_from_tracker:
+                paid_days = days_to_deduct_from_tracker
+            elif remaining > 0:
+                paid_days = remaining
+                unpaid_days = days_to_deduct_from_tracker - remaining
+            else:
+                unpaid_days = days_to_deduct_from_tracker
+                
+            if tracker and paid_days > 0:
+                tracker.deduct_leave(paid_days)
+
+        db_obj = Absence(
+            **obj_in.model_dump(exclude={"absence_type"}),
+            absence_type=absence_type,
+            employee_id=empId,
+            actual_days=actual_days_off,
+            special_paid_days=special_paid_days,
+            paid_days=paid_days,
+            unpaid_days=unpaid_days
+        )
+
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -131,5 +176,31 @@ class AbsenceService:
         db.refresh(db_absence)
         
         return db_absence
+    
+    def _calculate_actual_off_days(self, db: Session, start_date, end_date):
+        """
+        Tính số ngày nghỉ thực tế: 
+        Loại bỏ Thứ 7 (5), Chủ nhật (6) và các ngày lễ (Vacation)
+        """
+        vacations = db.query(Vacation).filter(
+            Vacation.start_date <= end_date,
+            Vacation.end_date >= start_date
+        ).all()
+
+        holiday_dates = set()
+        for v in vacations:
+            curr = v.start_date
+            while curr <= v.end_date:
+                holiday_dates.add(curr)
+                curr += timedelta(days=1)
+
+        actual_days = 0
+        current_day = start_date
+        while current_day <= end_date:
+            if current_day.weekday() < 5 and current_day not in holiday_dates:
+                actual_days += 1
+            current_day += timedelta(days=1)
+            
+        return actual_days
 
 absence_service = AbsenceService()

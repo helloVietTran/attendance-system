@@ -162,7 +162,7 @@ def client(db):
 @pytest.fixture
 def auth_client(client):
     def override_user():
-        return {"id": 1, "role": "Employee"}
+        return {"id": 1, "role": "employee"}
 
     app.dependency_overrides[get_current_user] = override_user
 
@@ -177,7 +177,7 @@ def admin_client():
     """
     # override get_current_user trả về admin
     def override_get_admin_user():
-        return {"id": 1, "role": "Admin"}
+        return {"id": 1, "role": "admin"}
 
     app.dependency_overrides[get_current_user] = override_get_admin_user
 

@@ -5,9 +5,9 @@ import enum
 from app.db.session import Base
 
 class UserRole(str, enum.Enum):
-    EMPLOYEE = "Employee"
-    HR = "HR"
-    ADMIN = "Admin"
+    EMPLOYEE = "employee"
+    HR = "hr"
+    ADMIN = "admin"
 
 class Employee(Base):
     __tablename__ = "employees"
