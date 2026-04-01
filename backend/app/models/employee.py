@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Date, DECIMAL, Enum
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, DECIMAL, Enum
 from sqlalchemy.orm import relationship
 import enum
 
@@ -24,7 +24,7 @@ class Employee(Base):
     salary = Column(DECIMAL(10, 2), nullable=False)
     shift_id = Column(Integer, ForeignKey("shifts.id"), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.EMPLOYEE, nullable=False)
-
+    is_active = Column(Boolean, default=True)
     # quan hệ
     absences = relationship("Absence", back_populates="employee")
     shift = relationship("Shift")

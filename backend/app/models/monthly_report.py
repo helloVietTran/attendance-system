@@ -17,13 +17,16 @@ class MonthlyWorkReport(Base):
     period_end = Column(Date, nullable=False)
     
     # Các chỉ số tổng hợp (Đơn vị: Phút)
-    work_minutes = Column(Integer, default=0)       # Tổng phút làm việc thực tế + bù trừ
+    standard_work_minutes = Column(Integer, default=0)       # Tổng phút làm việc thực tế
     lack_minutes = Column(Integer, default=0)       # Tổng phút thiếu hụt
 
     estimated_minutes = Column(Integer, default=0)  # Số phút tạm tính cho các ngày chưa làm
     
+    actual_work_days = Column(Integer)    # Số ngày thực tế đi làm
+    paid_leave_days = Column(Integer, default=0)     # Số ngày nghỉ hưởng lương
+    unpaid_leave_days = Column(Integer, default=0)   # Số ngày nghỉ không lương
+
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-
     # Quan hệ
     employee = relationship("Employee", backref="monthly_reports")

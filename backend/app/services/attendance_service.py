@@ -50,11 +50,10 @@ class AttendanceService:
             AttendanceLog.log_date == work_date
         ).order_by(AttendanceLog.checked_time.asc()).all()
 
+        # hôm đó nghỉ làm không
         has_absence = db.query(Absence).filter(
             Absence.employee_id == employee_id,
-            Absence.status == ApprovalStatus.APPROVED,
-            Absence.start_date <= work_date,
-            Absence.end_date >= work_date
+            Absence.work_date == work_date,
         ).first()
 
         if has_absence or not logs:

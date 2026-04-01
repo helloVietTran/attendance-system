@@ -19,7 +19,7 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 
 - Ví dụ: ngày 18 chốt công, `ngày 1 đến 17` tính công thực tế, `ngày 18 đến 30` sẽ tạm tính đủ công ( 8 tiếng/ 1 ngày). Sau ngày chốt công, anh A nghỉ 1 ngày không phép vào ngày 25. Anh A sẽ bị trừ đi 8 tiếng ở `lần chốt công tháng sau`.
 
-- Khi quên chấm công hoặc chấm công lỗi, nhân viên có thể tạo `yêu cầu sửa chấm công`, sau khi yêu cầu được duyệt. Công số bị thiếu của người đó ngày hôm đó sẽ được tính đủ. 1 tháng được tạo yêu cầu 3 lần.
+- Khi quên chấm công hoặc chấm công lỗi, nhân viên có thể tạo `yêu cầu sửa chấm công`, sau khi yêu cầu được duyệt. Công số bị thiếu của người đó ngày hôm đó sẽ được tính đủ. 1 tháng được tạo yêu cầu 3 lần. Nếu kì công đã **bị khóa** thì không cho phép sửa chấm công
 
 
 ### 2. Về thời gian OT

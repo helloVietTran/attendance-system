@@ -8,6 +8,7 @@ from app.schemas.base import ResponseSchema
 from app.schemas.timesheet_period_control import TimesheetPeriodResponse
 from app.db.session import get_db
 from app.services.payroll_service import payroll_service
+from app.schemas.payroll import PayrollCalculateRequest
 
 router = APIRouter(prefix="/payroll", tags=["QL chốt công"])
 
@@ -36,9 +37,14 @@ def lock_timesheet(
     dependencies=[Depends(role_required([UserRole.ADMIN.value, UserRole.HR.value]))],
 )
 def calculate_batch_payroll(
-    closing_day: int = Query(20, ge=1, le=28, description="Ngày chốt công hàng tháng"),
+    request_data: PayrollCalculateRequest,
     db: Session = Depends(get_db),
 ):
-
-    result = payroll_service.calculate_all_employees_payroll(db, closing_day)
+    result = payroll_service.calculate_all_employees_payroll(
+        db, 
+        closing_day=request_data.closing_day,
+        month=request_data.month,
+        year=request_data.year
+    )
+    
     return ResponseSchema(data=result)
