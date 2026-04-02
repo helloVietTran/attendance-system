@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import date, time, datetime
 from typing import Optional
 from app.models.overtime_request import OTType
@@ -34,5 +34,4 @@ class OvertimeResponse(OvertimeBase):
     approved_at: Optional[datetime] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

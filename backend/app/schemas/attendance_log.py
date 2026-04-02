@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, time
 
 class AttendanceCreate(BaseModel):
@@ -10,5 +10,4 @@ class AttendanceCreate(BaseModel):
 
 class AttendanceResponse(AttendanceCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

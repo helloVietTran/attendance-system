@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date
 from typing import Optional
 
@@ -9,5 +9,4 @@ class AbsenceAlertResponse(BaseModel):
     last_present_date: Optional[date]
     is_unexcused: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

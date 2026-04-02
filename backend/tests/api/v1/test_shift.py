@@ -7,7 +7,7 @@ def test_create_shift_request_success(auth_client, create_employee):
         "reason": "Muốn đổi ca"
     }
 
-    res = auth_client.post("/api/v1/shift-requests/", json=payload)
+    res = auth_client.post("/api/v1/shift/shift-change-request", json=payload)
 
     assert res.status_code == 200
     body = res.json()
@@ -27,7 +27,7 @@ def test_create_shift_request_employee_not_found(auth_client):
         "new_shift_id": 2
     }
 
-    res = auth_client.post("/api/v1/shift-requests/", json=payload)
+    res = auth_client.post("/api/v1/shift/shift-change-request", json=payload)
 
     assert res.status_code == 404
     body = res.json()
@@ -45,10 +45,11 @@ def test_create_shift_request_duplicate(auth_client, create_employee, create_shi
         "new_shift_id": 2
     }
 
-    res = auth_client.post("/api/v1/shift-requests/", json=payload)
+    res = auth_client.post("/api/v1/shift/shift-change-request", json=payload)
 
     assert res.status_code == 400
     body = res.json()
 
     assert body["status"] == 400
     assert "đang chờ duyệt" in body["message"]
+    

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from datetime import date, datetime
 from typing import Optional
 
@@ -9,13 +9,13 @@ class AbsencePlanCreate(BaseModel):
         ...,
         description="Loại nghỉ: annual, wedding, funeral, maternity, paternity"
     )
-    start_date: date = Field(..., example="2026-04-10")
-    end_date: date = Field(..., example="2026-04-12")
+    start_date: date = Field(..., json_schema_extra={"example": "2026-04-10"})
+    end_date: date = Field(..., json_schema_extra={"example": "2026-04-12"})
     reason: Optional[str] = Field(
         None, 
         max_length=500, 
         description="Lý do xin nghỉ phép",
-        example="Nghỉ về quê có việc gia đình"
+        json_schema_extra={"example": "Nghỉ về quê có việc gia đình"}
     )
 
     @field_validator('end_date')
@@ -24,8 +24,8 @@ class AbsencePlanCreate(BaseModel):
             raise ValueError("Ngày kết thúc không được trước ngày bắt đầu")
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "absence_type": "annual",
                 "start_date": "2026-04-15",
@@ -33,6 +33,7 @@ class AbsencePlanCreate(BaseModel):
                 "reason": "Nghỉ phép năm đi du lịch"
             }
         }
+    )
 
 class AbsencePlanApprove(BaseModel):
     status: Optional[ApprovalStatus] = Field(
@@ -50,8 +51,7 @@ class AbsencePlanResponse(BaseModel):
     reason: Optional[str]
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
     
 class AbsenceResponse(BaseModel):
     id: int
@@ -60,5 +60,4 @@ class AbsenceResponse(BaseModel):
     is_paid: bool
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
