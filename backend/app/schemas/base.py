@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar, List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 T = TypeVar("T")
 
@@ -20,5 +20,4 @@ class ResponseSchema(BaseModel, Generic[T]):
     message: str = "OK"
     data: Optional[T] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

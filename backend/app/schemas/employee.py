@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, time
 from typing import Optional
 from decimal import Decimal
@@ -15,8 +15,7 @@ class EmployeeRead(BaseModel):
     salary: Decimal
     shift_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ShiftSimpleResponse(BaseModel):
     id: int
@@ -24,8 +23,7 @@ class ShiftSimpleResponse(BaseModel):
     start_time: time
     end_time: time
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EmployeeWithShiftResponse(BaseModel):
     id: int
@@ -35,5 +33,4 @@ class EmployeeWithShiftResponse(BaseModel):
     # Lồng thông tin ca làm vào đây
     shift: Optional[ShiftSimpleResponse]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional
 from app.models.shift_change_request import RequestStatus
@@ -18,5 +18,4 @@ class ShiftChangeResponse(BaseModel):
     status: RequestStatus
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

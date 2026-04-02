@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from app.models.vacation import Vacation
 from app.schemas.vacation import VacationCreate, VacationUpdate
 from app.models.work_compensation import WorkCompensation
+from app.schemas.work_compensation import WorkCompensationCreate, WorkCompensationUpdate
 
 class CalendarService:
     def create_vacation(self, db: Session, obj_in: VacationCreate):

@@ -8,17 +8,16 @@ from decimal import Decimal
 
 from app.main import app
 from app.db.session import Base, get_db
-from backend.app.core.dependency import get_current_user
+from app.core.dependency import get_current_user
 
 from app.models.shift_change_request import ShiftChangeRequest, RequestStatus
 from app.models.employee import Employee, UserRole
 from app.models.shift import Shift
-from app.models.absence import AbsenceType, Absence, ApprovalStatus
+from app.models.absence import ApprovalStatus
 from app.models.system_setting import SystemSetting
+from app.models.daily_work_report import DailyWorkReport
+from app.models.attendance_correction import AttendanceCorrection
 
-# ========================
-# DATABASE (session scope)
-# ========================
 SQLALCHEMY_DATABASE_URL = "sqlite+pysqlite:///:memory:"
 
 @pytest.fixture(scope="session")
@@ -54,7 +53,7 @@ def seed_system_settings(setup_database, engine):
         ),
         SystemSetting(
             key="lunch_break_end",
-            value="13:30",
+            value="13:00",
             description="Giờ kết thúc nghỉ trưa"
         ),
         SystemSetting(
@@ -102,22 +101,7 @@ def seed_config_data(setup_database, engine):
         ),
     ]
 
-    absence_types = [
-        AbsenceType(
-            id=1,
-            name="Nghỉ phép năm",
-            code="VAC",
-            is_paid=1
-        ),
-        AbsenceType(
-            id=2,
-            name="Nghỉ ốm",
-            code="SICK",
-            is_paid=1
-        ),
-    ]
-
-    db.add_all(shifts + absence_types)
+    db.add_all(shifts)
     db.commit()
     db.close()
 
@@ -212,31 +196,6 @@ def create_employee(db):
 
     return _create
 
-@pytest.fixture(scope="function")
-def create_absence_record(db):
-    def _create(
-        employee_id=1,
-        absence_type_id=1,
-        start_date=date(2026, 4, 1),
-        end_date=date(2026, 4, 2),
-        reason="Nghỉ phép test",
-        status=ApprovalStatus.PENDING,
-    ):
-        absence = Absence(
-            employee_id=employee_id,
-            absence_type_id=absence_type_id,
-            start_date=start_date,
-            end_date=end_date,
-            reason=reason,
-            status=status,
-        )
-        db.add(absence)
-        db.commit()
-        db.refresh(absence)
-        return absence
-
-    return _create
-
 @pytest.fixture
 def create_shift_request(db):
     def _create(
@@ -268,4 +227,64 @@ def create_shift_request(db):
         db.refresh(req)
         return req
 
+    return _create
+
+@pytest.fixture
+def create_daily_report(db):
+    """
+    Fixture tạo báo cáo công nhật giả cho nhân viên
+    """
+    def _create(
+        employee_id=1,
+        work_date=None,
+        check_in=time(9, 15),
+        check_out=time(17, 30),
+        late_arrive=45,
+        lack_minutes=45,
+        work_time=435,
+        in_office=495
+    ):
+        if work_date is None:
+            work_date = date.today()
+
+        report = DailyWorkReport(
+            employee_id=employee_id,
+            work_date=work_date,
+            check_in=check_in,
+            check_out=check_out,
+            late_arrive_minutes=late_arrive,
+            leave_early_minutes=0,
+            lack_minutes=lack_minutes,
+            overtime_minutes=0,
+            in_office_minutes=in_office,
+            work_time_minutes=work_time,
+            note="Dữ liệu test"
+        )
+        db.add(report)
+        db.commit()
+        db.refresh(report)
+        return report
+
+    return _create
+
+@pytest.fixture
+def create_correction_record(db):
+    """
+    Fixture tạo yêu cầu chỉnh sửa công giả để phục vụ test tính năng Duyệt hoặc đếm lượt
+    """
+    def _create(employee_id=1, work_date=None, status=ApprovalStatus.PENDING):
+        if not work_date:
+            work_date = date.today()
+        record = AttendanceCorrection(
+            employee_id=employee_id,
+            work_date=work_date,
+            requested_check_in=time(8, 0),
+            requested_check_out=time(17, 0),
+            reason="Lỗi quẹt thẻ test",
+            status=status
+        )
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+        return record
     return _create
