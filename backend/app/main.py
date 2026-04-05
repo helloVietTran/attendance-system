@@ -54,7 +54,8 @@ app = FastAPI(
 )
 
 origins = [
-    "*"
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
 ]
 
 app.add_middleware(
@@ -68,7 +69,9 @@ app.add_middleware(
 app.add_middleware(
     SessionMiddleware, 
     secret_key=SECRET_KEY, 
-    session_cookie="ATS_SESSION_ID" 
+    session_cookie="ATS_SESSION_ID",
+    https_only=True, # for dev
+    same_site="none" #for dev
 )
 
 app.add_exception_handler(HTTPException, http_exception_handler)

@@ -4,8 +4,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.employee import Employee
 from app.schemas.auth import LoginSchema
-from app.schemas.employee import EmployeeRead
+from app.schemas.employee import EmployeeRead, EmployeeWithShiftResponse
 from app.schemas.base import ResponseSchema
+from app.services.employee_service import employee_service
 
 router = APIRouter(prefix="/auth", tags=["Xác thực & Phiên làm việc"])
 # from passlib.context import CryptContext
@@ -31,3 +32,12 @@ async def logout(request: Request):
     request.session.clear()
     return ResponseSchema(data=None, message="Đăng xuất thành công")
 
+@router.get("/me", response_model=ResponseSchema[EmployeeWithShiftResponse])
+async def get_current_employee(request: Request, db: Session = Depends(get_db)):
+    user_id = request.session.get("user_id")
+    print(f"User ID trong session: {user_id}")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Chưa đăng nhập")
+    
+    result = employee_service.get_employee_with_shift(db, user_id) 
+    return ResponseSchema(data=result)
