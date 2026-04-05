@@ -1,12 +1,16 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import extract, and_
-from datetime import date
+from datetime import date, time
 from fastapi import HTTPException
 
 from app.models.attendance_log import AttendanceLog
-from app.schemas.attendance_log import AttendanceCreate
 from app.models.daily_work_report import DailyWorkReport
+from app.models.absence import Absence
+
+from app.schemas.attendance_log import AttendanceCreate
+
 from app.services.setting_service import setting_service
+from app.services.calendar_service import calendar_service
 
 class AttendanceService:
     def ingest_log(self, db: Session, obj_in: AttendanceCreate):
@@ -23,35 +27,27 @@ class AttendanceService:
         db.refresh(db_obj)
         return db_obj
 
-    def get_attendance_by_month(self, db: Session, employee_id: int, month: int, year: int):
+    def get_attendance_logs_by_month(self, db: Session, employee_id: int, month: int, year: int):
         """Lấy danh sách chấm công của nhân viên trong một tháng cụ thể"""
         return db.query(AttendanceLog).filter(
             AttendanceLog.employee_id == employee_id,
             extract('month', AttendanceLog.log_date) == month,
             extract('year', AttendanceLog.log_date) == year
         ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
-    
-    def time_to_minutes(self, time_str: str) -> int:
-        if not time_str: return 0
-        h, m = map(int, time_str.split(':'))
-        return h * 60 + m
-    
-    def get_overlap_minutes(self, start1, end1, start2, end2) -> int:
-        """Tính số phút trùng nhau giữa 2 khoảng thời gian"""
-        start = max(start1, start2)
-        end = min(end1, end2)
-        return max(0, end - start)
 
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
+        working_days = calendar_service.get_working_days_list(db, work_date, work_date)
+
+        if not working_days:
+            print(f"Bỏ qua xử lý: Ngày {work_date} không phải là ngày làm việc quy định.")
+            return None
+
         # lấy các setting cần thiết
         lunch_start_str = setting_service.get_setting_value(db, "lunch_break_start")
         lunch_end_str = setting_service.get_setting_value(db, "lunch_break_end")
         required_minutes = int(setting_service.get_setting_value(db, "required_work_minutes", 480))
 
         if not lunch_start_str or not lunch_end_str:
-            error_msg = f"Chưa có cấu hình chấm công (Lunch/Required Minutes)"
-            print(error_msg)
-
             raise HTTPException(status_code=400, detail="Hệ thống chưa cấu hình khung giờ làm việc chuẩn.")
 
         # lấy log đầu tiên và cuối cùng trong ngày
@@ -60,26 +56,32 @@ class AttendanceService:
             AttendanceLog.log_date == work_date
         ).order_by(AttendanceLog.checked_time.asc()).all()
 
-        if not logs or len(logs) < 1:
-            return None
+        # hôm đó nghỉ làm không
+        has_absence = db.query(Absence).filter(
+            Absence.employee_id == employee_id,
+            Absence.work_date == work_date,
+        ).first()
+
+        if has_absence or not logs:
+              raise HTTPException(status_code=400, detail="Không tìm thấy dữ liệu chấm công hoặc nhân viên xin nghỉ.")
 
         first_log = logs[0]
         last_log = logs[-1]
 
         # Convert sang minutes
-        check_in_min = self.time_to_minutes(str(first_log.checked_time)[:5])
-        check_out_min = self.time_to_minutes(str(last_log.checked_time)[:5])
+        check_in_min = self._time_to_minutes(str(first_log.checked_time)[:5])
+        check_out_min = self._time_to_minutes(str(last_log.checked_time)[:5])
 
-        shift_start_min = self.time_to_minutes(str(first_log.shift_start)[:5])
-        shift_end_min = self.time_to_minutes(str(first_log.shift_end)[:5])
+        shift_start_min = self._time_to_minutes(str(first_log.shift_start)[:5])
+        shift_end_min = self._time_to_minutes(str(first_log.shift_end)[:5])
 
-        lunch_start_min = self.time_to_minutes(lunch_start_str)
-        lunch_end_min = self.time_to_minutes(lunch_end_str)
+        lunch_start_min = self._time_to_minutes(lunch_start_str)
+        lunch_end_min = self._time_to_minutes(lunch_end_str)
 
         in_office = check_out_min - check_in_min
-        
+
         # Trừ giờ nghỉ trưa (Overlap giữa giờ làm và giờ nghỉ)
-        overlap_lunch = self.get_overlap_minutes(check_in_min, check_out_min, lunch_start_min, lunch_end_min)
+        overlap_lunch = self._get_overlap_minutes(check_in_min, check_out_min, lunch_start_min, lunch_end_min)
         actual_work_time = in_office - overlap_lunch
 
         # Tính đi muộn về sớm
@@ -112,7 +114,7 @@ class AttendanceService:
         db.refresh(daily_report)
         return daily_report
 
-    def get_monthly_report(self, db: Session, employee_id: int, month: int, year: int):
+    def get_daily_work_reports_by_month(self, db: Session, employee_id: int, month: int, year: int):
         return db.query(DailyWorkReport).filter(
             and_(
                 DailyWorkReport.employee_id == employee_id,
@@ -121,5 +123,28 @@ class AttendanceService:
             )
         ).order_by(DailyWorkReport.work_date.asc()).all()
 
-# Khởi tạo instance
+    def _time_to_minutes(self, time_str: str) -> int:
+        if not time_str: return 0
+        h, m = map(int, time_str.split(':'))
+        return h * 60 + m
+
+    def _get_overlap_minutes(self, start1, end1, start2, end2) -> int:
+        """Tính số phút trùng nhau giữa 2 khoảng thời gian"""
+        start = max(start1, start2)
+        end = min(end1, end2)
+        return max(0, end - start)
+
+    def _calculate_minutes(self, start: time, end: time) -> int:
+        """
+        Tính toán số phút giữa hai mốc thời gian trong cùng một ngày.
+        Ví dụ: 18:00 đến 20:30 -> 150 phút.
+        """
+        start_total_minutes = start.hour * 60 + start.minute
+
+        end_total_minutes = end.hour * 60 + end.minute
+
+        duration = end_total_minutes - start_total_minutes
+
+        return max(0, duration)
+
 attendance_service = AttendanceService()

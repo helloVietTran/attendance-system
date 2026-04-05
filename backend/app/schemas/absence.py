@@ -1,56 +1,63 @@
-from pydantic import BaseModel, Field,field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from datetime import date, datetime
 from typing import Optional
-from enum import Enum
 
-from app.models.absence import ApprovalStatus
+from app.models.absence import ApprovalStatus, AbsenceType
 
-class AbsenceTypeResponse(BaseModel):
-    id: int
-    name: str
-    code: str
-    is_paid: int
-    class Config: from_attributes = True
-
-class AbsenceBase(BaseModel):
-    employee_id: int
-    absence_type_id: int
-    start_date: date
-    end_date: date
-    reason: Optional[str] = Field(None, example="Nghỉ ốm đi khám bệnh")
-
-class AbsenceCreate(AbsenceBase):
-    pass
-
-class AbsenceUpdate(BaseModel):
-    status: Optional[ApprovalStatus] = None
-    reason: Optional[str] = None
-
-class AbsenceResponse(AbsenceBase):
-    id: int
-    status: ApprovalStatus
-    created_at: datetime
-    type_info: Optional[AbsenceTypeResponse] = None 
-
-    class Config:
-        from_attributes = True
-
-class AbsenceApprove(BaseModel):
-    status: ApprovalStatus = Field(..., example="approved") # Chỉ nhận "approved" hoặc "rejected"
-    note: Optional[str] = Field(None, example="Đã duyệt, chúc bạn nghỉ lễ vui vẻ")
-
-class LongTermAbsenceCreate(BaseModel):
-    employee_id: int
-    absence_type_id: int
-    start_date: date
-    end_date: date
-    reason: Optional[str] = "Nghỉ dài hạn theo chế độ (Admin tạo)"
+class AbsencePlanCreate(BaseModel):
+    absence_type: AbsenceType = Field(
+        ...,
+        description="Loại nghỉ: annual, wedding, funeral, maternity, paternity"
+    )
+    start_date: date = Field(..., json_schema_extra={"example": "2026-04-10"})
+    end_date: date = Field(..., json_schema_extra={"example": "2026-04-12"})
+    reason: Optional[str] = Field(
+        None, 
+        max_length=500, 
+        description="Lý do xin nghỉ phép",
+        json_schema_extra={"example": "Nghỉ về quê có việc gia đình"}
+    )
 
     @field_validator('end_date')
-    def check_duration(cls, v, info):
-        if 'start_date' in info.data:
-            start = info.data['start_date']
-            duration = (v - start).days
-            if duration < 30:
-                raise ValueError("Kỳ nghỉ dài hạn phải có thời gian trên 30 ngày.")
+    def check_dates(cls, v, info):
+        if 'start_date' in info.data and v < info.data['start_date']:
+            raise ValueError("Ngày kết thúc không được trước ngày bắt đầu")
         return v
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "absence_type": "annual",
+                "start_date": "2026-04-15",
+                "end_date": "2026-04-17",
+                "reason": "Nghỉ phép năm đi du lịch"
+            }
+        }
+    )
+
+class AbsencePlanApprove(BaseModel):
+    status: Optional[ApprovalStatus] = Field(
+        None, 
+        description="Trạng thái phê duyệt: 'approved' (Đồng ý) hoặc 'rejected' (Từ chối)"
+    )
+    reason: Optional[str] = None
+
+class AbsencePlanResponse(BaseModel):
+    id: int
+    employee_id: int
+    start_date: date
+    end_date: date
+    status: ApprovalStatus
+    reason: Optional[str]
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+class AbsenceResponse(BaseModel):
+    id: int
+    employee_id: int
+    work_date: date
+    is_paid: bool
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)

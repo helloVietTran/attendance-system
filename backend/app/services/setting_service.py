@@ -1,6 +1,8 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 from app.models.system_setting import SystemSetting
-from app.schemas.system_setting import SystemSettingKey
+from app.schemas.system_setting import SystemSettingKey, SystemSettingUpdate
 from fastapi import HTTPException
 
 class SettingService:
@@ -9,7 +11,7 @@ class SettingService:
 
     def get_setting_value(self, db: Session, key: SystemSettingKey, default=None):
         key_str = key.value if hasattr(key, 'value') else key
-        
+
         # cache hit
         if key_str in self._cache:
             return self._cache[key_str]
@@ -36,12 +38,34 @@ class SettingService:
         
         return db_obj
 
+    def update_multiple_settings(self, db: Session, configs: List[SystemSettingUpdate]):
+        updated_db_objects = []
+        
+        for item in configs:
+            key_str = item.key.value
+            db_obj = db.query(SystemSetting).filter(SystemSetting.key == key_str).first()
+            
+            if not db_obj:
+                raise HTTPException(status_code=404, detail=f"Key {key_str} không tồn tại")
+
+            db_obj.value = item.value
+            
+            self._cache[key_str] = item.value
+            
+            updated_db_objects.append(db_obj)
+
+        db.commit()
+    
+        for obj in updated_db_objects:
+            db.refresh(obj)
+            
+        return updated_db_objects
+
     def get_all_settings(self, db: Session):
 
         return db.query(SystemSetting).all()
 
     def preload_all_settings(self, db: Session):
-        """Hàm này gọi khi khởi động Server để nạp toàn bộ vào RAM"""
         settings = db.query(SystemSetting).all()
         for s in settings:
             self._cache[s.key] = s.value

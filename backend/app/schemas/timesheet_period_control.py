@@ -1,22 +1,19 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import date, datetime
 from typing import Optional
 
-class TimesheetPeriodControlResponse(BaseModel):
+class TimesheetPeriodBase(BaseModel):
+    month: int = Field(..., ge=1, le=12, description="Tháng trong năm (1-12)")
+    year: int = Field(..., ge=2000, description="Năm")
+    closing_date: date
+    is_locked: bool = True
+    note: Optional[str] = Field(None, max_length=255)
+
+class TimesheetPeriodResponse(TimesheetPeriodBase):
+    """Dữ liệu trả về cho Client"""
     id: int
-    month: int
-    year: int
-    period_start_date: date
-    period_end_date: date
-    is_locked: bool
+    locked_by: Optional[int] = None
     locked_at: Optional[datetime] = None
-    note: Optional[str] = None
+    updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
-class LockTimesheetPeriodRequest(BaseModel):
-    month: int
-    year: int
-    hr_id: int
-    note: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)

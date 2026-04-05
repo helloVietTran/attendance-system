@@ -1,13 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import date
 from typing import Optional
-from enum import Enum
 
 from app.models.vacation import VacationType
 
 class VacationBase(BaseModel):
-    title: str = Field(..., min_length=1, max_length=200, example="Nghỉ Tết Nguyên Đán")
-    description: Optional[str] = Field(None, max_length=500, example="Nghỉ theo quy định nhà nước")
+    title: str = Field(..., min_length=1, max_length=200, json_schema_extra={"example": "Nghỉ Tết Nguyên Đán"})
+    description: Optional[str] = Field(None, max_length=500, json_schema_extra={"example": "Nghỉ theo quy định nhà nước"})
     start_date: date
     end_date: date
     vacation_type: VacationType = Field(default=VacationType.HOLIDAY)
@@ -29,5 +28,4 @@ class VacationUpdate(BaseModel):
 class VacationResponse(VacationBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, time, datetime
 from typing import Optional
 
@@ -21,5 +21,4 @@ class DailyWorkReportResponse(WorkReportBase):
     id: int
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

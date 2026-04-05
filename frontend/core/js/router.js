@@ -57,9 +57,18 @@ function setupMainSidebarLinks() {
 
         if (menuText.includes("Dashboard")) {
             await loadComponent('main-content', '../../pages/Dashboard/index.html', '../../pages/Dashboard/dashboard.css');
+        } else if (menuText.includes("Thống kê")) {
+            const success = await loadComponent('main-content', '../../pages/Reports/index.html', '../../pages/Reports/reports.css');
+            if (success && typeof window.initReportsMainPageGlobal === 'function') {
+                setTimeout(() => {
+                    window.initReportsMainPageGlobal();
+                }, 100);
+            }
         } else if (menuText.includes("Cài Đặt")) {
-            await loadComponent('main-content', '../../pages/Setting/setting.html', '../../pages/Setting/setting.css');
-            if (typeof initSettingsPage === 'function') initSettingsPage();
+            const success = await loadComponent('main-content', '../../pages/Setting/setting.html', '../../pages/Setting/setting.css');
+            if (success && typeof initSettingsPage === 'function') {
+                initSettingsPage();
+            }
         }
     };
 }

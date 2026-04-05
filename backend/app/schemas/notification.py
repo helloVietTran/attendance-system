@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -10,10 +10,4 @@ class NotificationResponse(BaseModel):
     notification_type: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
-class NotificationListWithCount(BaseModel):
-    total_count: int
-    unread_count: int
-    items: List[NotificationResponse]
+    model_config = ConfigDict(from_attributes=True)

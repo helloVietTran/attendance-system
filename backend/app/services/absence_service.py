@@ -1,125 +1,163 @@
-
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from fastapi import HTTPException
-from app.models.absence import Absence, ApprovalStatus
-from app.models.employee import Employee
+from datetime import datetime
+
+from app.models.absence import Absence, AbsenceType, ApprovalStatus
 from app.models.notification import Notification
-from app.schemas.absence import AbsenceCreate, AbsenceApprove, LongTermAbsenceCreate
+from app.schemas.absence import AbsencePlanApprove, AbsencePlanCreate
+
+from app.models.vacation import Vacation
+from app.models.absence_tracker import AbsenceTracker
+from app.models.absence_plan import AbsencePlan
+from app.services.calendar_service import calendar_service
 
 class AbsenceService:
-    def create_absence(self, db: Session, obj_in: AbsenceCreate):
-        """Tạo đơn xin nghỉ phép với kiểm tra trùng lặp thời gian"""
-        emp = db.query(Employee).filter(Employee.id == obj_in.employee_id).first()
-        if not emp:
-            raise HTTPException(status_code=404, detail="Nhân viên không tồn tại")
-
-        # kiểm tra trùng lặp (Overlap) với các đơn chưa bị từ chối
-        overlap_check = db.query(Absence).filter(
-            Absence.employee_id == obj_in.employee_id,
-            Absence.status != ApprovalStatus.REJECTED, 
+    def create_absence_plan(self, db: Session, obj_in: AbsencePlanCreate, emp_id: int):
+        # Kiểm tra trùng lặp với các kế hoạch đã có (tránh gửi đơn đè nhau)
+        overlap = db.query(AbsencePlan).filter(
+            AbsencePlan.employee_id == emp_id,
+            AbsencePlan.status != ApprovalStatus.REJECTED,
             and_(
-                Absence.start_date <= obj_in.end_date,
-                Absence.end_date >= obj_in.start_date
+                AbsencePlan.start_date <= obj_in.end_date,
+                AbsencePlan.end_date >= obj_in.start_date
             )
         ).first()
+        
+        if overlap:
+            raise HTTPException(status_code=400, detail="Bạn đã có một kế hoạch nghỉ trùng với thời gian này")
 
-        if overlap_check:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Nhân viên đã có đơn nghỉ phép từ {overlap_check.start_date} đến {overlap_check.end_date}"
-            )
-
-        db_obj = Absence(**obj_in.model_dump())
-        db.add(db_obj)
+        # Tạo đơn Plan ở trạng thái PENDING
+        db_plan = AbsencePlan(
+            **obj_in.model_dump(),
+            employee_id=emp_id,
+            status=ApprovalStatus.PENDING
+        )
+        db.add(db_plan)
         db.commit()
-        db.refresh(db_obj)
-        return db_obj
-
-    def get_absences_by_employee(self, db: Session, employee_id: int):
-        """Lấy danh sách đơn nghỉ của một nhân viên"""
-        return db.query(Absence).filter(Absence.employee_id == employee_id).all()
+        db.refresh(db_plan)
+        return db_plan
     
-    def delete_pending_absence(self, db: Session, absence_id: int):
-        """Xóa đơn nghỉ phép (Chỉ cho phép khi đang PENDING)"""
-        db_obj = db.query(Absence).filter(Absence.id == absence_id).first()
-        
-        if not db_obj:
-            raise HTTPException(status_code=404, detail="Không tìm thấy đơn nghỉ phép")
+    def approve_absence_plan(self, db: Session, plan_id: int, admin_id: int, obj_in: AbsencePlanApprove):
+        plan = db.query(AbsencePlan).filter(AbsencePlan.id == plan_id).first()
+        if not plan:
+            raise HTTPException(status_code=404, detail="Không tìm thấy kế hoạch nghỉ phép")
 
-        if db_obj.status != ApprovalStatus.PENDING:
+        if plan.status != ApprovalStatus.PENDING:
             raise HTTPException(
                 status_code=400, 
-                detail=f"Không thể xóa đơn vì trạng thái hiện tại là: {db_obj.status.value}"
+                detail=f"Kế hoạch này đã được xử lý (Trạng thái: {plan.status.value})"
             )
 
-        db.delete(db_obj)
-        db.commit()
-        return {"message": "Đã xóa đơn nghỉ phép thành công", "id": absence_id}
-
-    def approve_absence(self, db: Session, absence_id: int, obj_in: AbsenceApprove):
-        """Duyệt hoặc từ chối đơn nghỉ phép và gửi thông báo cho nhân viên"""
-        db_obj = db.query(Absence).filter(Absence.id == absence_id).first()
-        
-        if not db_obj:
-            raise HTTPException(status_code=404, detail="Không tìm thấy đơn nghỉ phép")
-
-        if db_obj.status != ApprovalStatus.PENDING:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Đơn này đã được xử lý (Trạng thái: {db_obj.status.value})"
-            )
-
-        # Cập nhật trạng thái và note
-        db_obj.status = obj_in.status
-        if obj_in.note:
-            db_obj.reason = (db_obj.reason or "") + f" | Note: {obj_in.note}"
-
-        # Xử lý thông báo (Notification)
         notif_title = ""
         notif_content = ""
         notif_type = ""
 
         if obj_in.status == ApprovalStatus.APPROVED:
-            notif_title = "Đơn nghỉ phép đã được duyệt! 🟢"
-            notif_content = f"Đơn nghỉ từ {db_obj.start_date} đến {db_obj.end_date} của bạn đã được chấp thuận."
-            notif_type = "ABSENCE_APPROVED"
-        
-        elif obj_in.status == ApprovalStatus.REJECTED:
-            notif_title = "Đơn nghỉ phép bị từ chối 🔴"
-            notif_content = f"Đơn nghỉ của bạn không được duyệt. Lý do: {obj_in.note or 'Không có lý do cụ thể'}"
-            notif_type = "ABSENCE_REJECTED"
+            # --- LOGIC PHÊ DUYỆT ---
+            tracker = db.query(AbsenceTracker).filter(AbsenceTracker.employee_id == plan.employee_id).first()
+            if not tracker:
+                raise HTTPException(status_code=404, detail="Không tìm thấy quỹ phép của nhân viên")
 
+            # Lấy danh sách ngày làm việc (trừ lễ/cuối tuần) từ calendar_service
+            working_days = calendar_service.get_working_days_list(db, plan.start_date, plan.end_date)
+            
+            abs_type = plan.absence_type
+            special_paid_limit = abs_type.max_days
+            days_processed = 0
+
+            for current_date in working_days:
+                is_paid = False
+                days_processed += 1
+
+                if abs_type == AbsenceType.ANNUAL:
+                    # Nghỉ phép năm: Trừ thẳng vào quỹ
+                    if tracker.total_remaining_leave > 0:
+                        is_paid = True
+                        tracker.deduct_leave(1)
+                else:
+                    # Nghỉ chế độ (Thai sản, cưới hỏi...)
+                    if days_processed <= special_paid_limit:
+                        is_paid = True
+                    else:
+                        # Vượt quá ngày chế độ -> Thử trừ vào quỹ phép năm
+                        if tracker.total_remaining_leave > 0:
+                            is_paid = True
+                            tracker.deduct_leave(1)
+                        else:
+                            is_paid = False
+
+                # Tạo bản ghi Absence chi tiết cho từng ngày
+                daily_absence = Absence(
+                    employee_id=plan.employee_id,
+                    work_date=current_date,
+                    is_paid=is_paid
+                )
+                db.add(daily_absence)
+
+            notif_title = "Kế hoạch nghỉ phép đã được duyệt!"
+            notif_content = f"Kế hoạch nghỉ từ {plan.start_date} đến {plan.end_date} của bạn đã được chấp thuận."
+            notif_type = "ABSENCE_PLAN_APPROVED"
+
+        elif obj_in.status == ApprovalStatus.REJECTED:
+            notif_title = "Kế hoạch nghỉ phép bị từ chối"
+            notif_content = f"Kế hoạch nghỉ của bạn không được duyệt. Lý do: {obj_in.note or 'Không có lý do cụ thể'}"
+            notif_type = "ABSENCE_PLAN_REJECTED"
+
+        plan.status = obj_in.status
+        plan.approved_by = admin_id
+        plan.approved_at = datetime.now()
+
+        # Tạo thông báo
         if notif_title:
             new_notification = Notification(
-                employee_id=db_obj.employee_id,
+                employee_id=plan.employee_id,
                 title=notif_title,
                 content=notif_content,
                 notification_type=notif_type
             )
             db.add(new_notification)
-        
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
 
-    def create_long_term_absence(self, db: Session, obj_in: LongTermAbsenceCreate):
-        """
-        Mặc định APPROVED vì do Admin/Hệ thống tạo.
-        """
-        db_absence = Absence(
-            employee_id=obj_in.employee_id,
-            absence_type_id=obj_in.absence_type_id,
-            start_date=obj_in.start_date,
-            end_date=obj_in.end_date,
-            reason=obj_in.reason,
-            status=ApprovalStatus.APPROVED
-        )
+        try:
+            db.commit()
+            db.refresh(plan)
+            return plan
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Lỗi hệ thống: {str(e)}")
+
+    def get_absences_by_employee(self, db: Session, employee_id: int):
+        """Lấy danh sách đơn nghỉ của một nhân viên"""
+        return db.query(Absence).filter(Absence.employee_id == employee_id).all()
+    
+    def delete_absence_plan(self, db: Session, plan_id: int, emp_id: int):
+        plan = db.query(AbsencePlan).filter(
+            AbsencePlan.id == plan_id,
+            AbsencePlan.employee_id == emp_id
+        ).first()
         
-        db.add(db_absence)
-        db.commit()
-        db.refresh(db_absence)
-        
-        return db_absence
+        if not plan:
+            raise HTTPException(
+                status_code=404, 
+                detail="Không tìm thấy kế hoạch nghỉ phép này."
+            )
+
+        if plan.status != ApprovalStatus.PENDING:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Không thể xóa đơn ở trạng thái {plan.status.value}. "
+                       f"Chỉ có đơn 'Chờ duyệt' mới được phép xóa."
+            )
+
+        try:
+            db.delete(plan)
+            db.commit()
+            return {"message": "Đã xóa kế hoạch nghỉ phép thành công."}
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="Có lỗi xảy ra khi xóa dữ liệu."
+            )
 
 absence_service = AbsenceService()

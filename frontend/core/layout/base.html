@@ -21,9 +21,17 @@
     </div>
 
     <script src="../../pages/Setting/setting.js"></script>
+    <script src="../../pages/Reports/attendance.js"></script>
+    <script src="../../pages/Reports/reports.js"></script>
+    <script src="../../pages/Reports/reports-main.js"></script>
 
     <script src="../js/router.js"></script>
     <script src="../js/auth.js"></script>
+
+    <script>
+        // Gọi initReportsMainPage khi cần từ router.js
+        window.initReportsMainPageGlobal = initReportsMainPage;
+    </script>
 
     <body onload="checkAuth()"></body>
 </body>

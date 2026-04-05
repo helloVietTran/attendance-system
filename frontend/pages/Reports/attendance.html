@@ -1,0 +1,106 @@
+<div class="reports-container">
+    <div class="reports-header">
+        <h2 style="color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Chấm Công</h2>
+        <p style="color: #888; margin-bottom: 20px; font-size: 14px;">Xem lịch sử quẹt thẻ và chấm công của nhân viên.
+        </p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section"
+        style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; margin-bottom: 25px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div class="form-group">
+                <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">Chọn Nhân
+                    Viên</label>
+                <select id="attendance-employee-select"
+                    style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <option value="">-- Chọn nhân viên --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label
+                    style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">Tháng</label>
+                <select id="attendance-month"
+                    style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4" selected>Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label
+                    style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">Năm</label>
+                <input type="number" id="attendance-year" value="2026"
+                    style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button id="attendance-filter-btn"
+                    style="width: 100%; background-color: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <i class="fa-solid fa-search" style="margin-right: 8px;"></i> Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="stats-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+        <div class="stat-card"
+            style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; text-align: center;">
+            <p style="color: #888; font-size: 12px; margin-bottom: 5px;">Tổng ngày công</p>
+            <p id="attendance-total-days" style="color: var(--accent-color); font-size: 24px; font-weight: bold;">--</p>
+        </div>
+        <div class="stat-card"
+            style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; text-align: center;">
+            <p style="color: #888; font-size: 12px; margin-bottom: 5px;">Đi muộn</p>
+            <p id="attendance-late-count" style="color: #ff9800; font-size: 24px; font-weight: bold;">--</p>
+        </div>
+        <div class="stat-card"
+            style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; text-align: center;">
+            <p style="color: #888; font-size: 12px; margin-bottom: 5px;">Về sớm</p>
+            <p id="attendance-early-count" style="color: #ff9800; font-size: 24px; font-weight: bold;">--</p>
+        </div>
+        <div class="stat-card"
+            style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; text-align: center;">
+            <p style="color: #888; font-size: 12px; margin-bottom: 5px;">Không có dữ liệu</p>
+            <p id="attendance-no-data-count" style="color: #f44336; font-size: 24px; font-weight: bold;">--</p>
+        </div>
+    </div>
+
+    <!-- Log Table -->
+    <div
+        style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 6px; padding: 20px; overflow-x: auto;">
+        <h3 style="color: var(--text-light); margin-bottom: 15px; font-weight: 500;">Chi tiết log chấm công</h3>
+        <table class="attendance-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-color);">
+                    <th style="padding: 12px; text-align: left; color: var(--text-light); font-weight: 600;">Ngày</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-light); font-weight: 600;">Giờ làm
+                        việc</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-light); font-weight: 600;">Giờ chấm
+                        công</th>
+                    <th style="padding: 12px; text-align: left; color: var(--text-light); font-weight: 600;">Trạng thái
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="attendance-logs-tbody">
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td colspan="4" style="padding: 20px; text-align: center; color: #888;">Vui lòng chọn nhân viên để
+                        xem log chấm công</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

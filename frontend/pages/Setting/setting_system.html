@@ -14,7 +14,7 @@
                 <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
                     Giờ bắt đầu nghỉ trưa <span style="color: #ff5252;">*</span>
                 </label>
-                <input type="time" name="lunch_break_start" value="12:00"
+                <input type="time" name="lunch_break_start" id="lunch_break_start"
                     style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
             </div>
 
@@ -22,7 +22,7 @@
                 <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
                     Giờ kết thúc nghỉ trưa <span style="color: #ff5252;">*</span>
                 </label>
-                <input type="time" name="lunch_break_end" value="13:00"
+                <input type="time" name="lunch_break_end" id="lunch_break_end"
                     style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
             </div>
         </div>
@@ -36,7 +36,7 @@
             <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
                 Số ngày nghỉ phép có hưởng lương (năm)
             </label>
-            <input type="number" name="annual_paid_leave_days" value="14"
+            <input type="number" name="annual_paid_leave_days" id="annual_paid_leave_days"
                 style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
             <small style="color: #666;">Mặc định theo luật lao động là 12-14 ngày.</small>
         </div>
@@ -45,7 +45,7 @@
             <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
                 Số tháng nghỉ thai sản
             </label>
-            <input type="number" name="maternity_leave_months" value="6"
+            <input type="number" name="maternity_leave_months" id="maternity_leave_months"
                 style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
         </div>
 
@@ -53,7 +53,7 @@
             <label style="display: block; color: var(--text-light); margin-bottom: 8px; font-size: 14px;">
                 Số lần được chỉnh sửa điểm danh tối đa / tháng <span style="color: #ff5252;">*</span>
             </label>
-            <input type="number" name="max_attendance_correction_per_month" value="3"
+            <input type="number" name="max_attendance_correction_per_month" id="max_attendance_correction_per_month"
                 style="width: 100%; padding: 10px; background-color: var(--bg-dark); color: white; border: 1px solid var(--border-color); border-radius: 4px;">
             <small style="color: #666;">Dùng để giới hạn nhân viên tự ý sửa log check-in/out.</small>
         </div>
