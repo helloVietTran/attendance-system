@@ -15,7 +15,7 @@
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Mật khẩu" required>
 
-        <button onclick="login()">Đăng nhập</button>
+        <button id="btnLogin">Đăng nhập</button>
 
         <p><a href="register.html">Chưa có tài khoản? Đăng ký</a></p>
 
@@ -23,45 +23,7 @@
     </div>
 
     <script src="../../core/js/api.js"></script>
-    <script>
-        const API_BASE_URL = "http://localhost:8000/api/v1";
-
-        async function login() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-
-            if (!email || !password) {
-                document.getElementById("message").innerText = "Vui lòng nhập email và mật khẩu";
-                return;
-            }
-
-            try {
-                const res = await fetch(API_BASE_URL + "/auth/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await res.json();
-
-                if (res.status === 200) {
-                    localStorage.setItem("token", data.access_token);
-                    localStorage.setItem("role", data.role || "user");
-
-                    // Chuyển đến trang chính
-                    window.location.href = "../../core/layout/base.html";
-                } else {
-                    document.getElementById("message").innerText = data.detail || "Đăng nhập thất bại";
-                }
-
-            } catch (e) {
-                console.error(e);
-                document.getElementById("message").innerText = "Lỗi kết nối";
-            }
-        }
-    </script>
+    <script src="./auth.js"></script>
 
 </body>
 
