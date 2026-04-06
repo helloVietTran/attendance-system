@@ -13,25 +13,24 @@ async function login() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email, password }),
-            credentials: "include"
+            body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json();
+        const result = await res.json();
 
         if (res.ok) {
-
-            localStorage.setItem("role", data.role || "user");
-            localStorage.setItem("username", data.username || "");
+            localStorage.setItem("access_token", result.data.access_token);
 
             window.location.href = "../../core/layout/base.html";
         } else {
-            document.getElementById("message").innerText = data.detail || "Đăng nhập thất bại";
+            document.getElementById("message").innerText =
+                result.detail || "Đăng nhập thất bại";
         }
 
     } catch (e) {
         console.error(e);
-        document.getElementById("message").innerText = "Kiểm tra lại tài khoản và mật khẩu";
+        document.getElementById("message").innerText =
+            "Kiểm tra lại tài khoản và mật khẩu";
     }
 }
 
