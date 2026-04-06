@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from starlette.middleware.sessions import SessionMiddleware
 
 from app.db.session import init_db, SessionLocal
 from app.api.v1.calendar import router as calendar_router
@@ -28,7 +27,6 @@ from app.models import (
     timesheet_period_control, vacation
 )
 from app.core.scheduler import start_scheduler
-from app.core.config import SECRET_KEY
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,14 +62,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-app.add_middleware(
-    SessionMiddleware, 
-    secret_key=SECRET_KEY, 
-    session_cookie="ATS_SESSION_ID",
-    https_only=True, # for dev
-    same_site="none" #for dev
 )
 
 app.add_exception_handler(HTTPException, http_exception_handler)

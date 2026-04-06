@@ -1,10 +1,24 @@
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException
 
-def get_current_user(request: Request):
-    user_id = request.session.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Vui lòng đăng nhập")
-    return {"id": user_id, "role": request.session.get("role")}
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.services.auth_service import decode_access_token
+
+security = HTTPBearer()
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+    payload = decode_access_token(token)
+
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token không hợp lệ")
+
+    return {
+        "id": payload.get("user_id"),
+        "role": payload.get("role")
+    }
 
 def role_required(allowed_roles: list):
     def decorator(current_user: dict = Depends(get_current_user)):

@@ -4,7 +4,7 @@
 
 INSERT INTO system_settings (`key`, `value`, `description`) VALUES
 ('lunch_break_start', '12:00', 'Giờ bắt đầu nghỉ trưa'),
-('lunch_break_end', '13:30', 'Giờ kết thúc nghỉ trưa'),
+('lunch_break_end', '13:00', 'Giờ kết thúc nghỉ trưa'),
 ('annual_paid_leave_days', '14', 'Số ngày nghỉ phép hưởng lương định mức hàng năm'),
 ('maternity_leave_months', '6', 'Thời gian nghỉ thai sản tính theo tháng'),
 ('max_attendance_correction_per_month', '3', 'Số lần tối đa nhân viên được phép gửi yêu cầu chỉnh sửa chấm công trong một tháng');
