@@ -3,34 +3,20 @@
 ## Tổng quan
 Frontend của hệ thống quản lý nhân sự được xây dựng bằng HTML, CSS và JavaScript thuần. Giao diện sử dụng các component tĩnh và tương tác với backend API qua HTTP requests.
 
-## Cấu hình và Chạy Frontend
+## Lưu ý khi call API
+- Hệ thống hiện tại sử dụng **JWT** để xác thực thay vì session server-side.
+- Access token được lưu trong `localStorage` với key `access_token`.
+- Khi gọi request tới backend, hãy dùng helper `fetchWithAuth(url, options)` trong `frontend/core/js/api.js`.
+- `fetchWithAuth` sẽ tự động thêm header `Authorization: Bearer <token>` và `Content-Type: application/json`.
 
-### 1. Chạy Frontend trên Localhost:5500
-Để tránh lỗi CORS khi kết nối với backend, hãy chạy frontend trên `localhost:5500` thay vì `127.0.0.1:5500`.
-
-#### Bước thực hiện:
+## Chạy frontend
 1. Mở Visual Studio Code
 2. Cài đặt extension "Live Server" nếu chưa có
 3. Mở thư mục `frontend` trong VS Code
 4. Click chuột phải vào file `base.html` (hoặc file HTML chính) và chọn "Open with Live Server"
 5. Hoặc sử dụng command palette: `Ctrl+Shift+P` → "Live Server: Open with Live Server"
 
-Frontend sẽ chạy trên: `http://localhost:5500`
-
-### 2. Cấu hình API URL
-Trong các file JavaScript (như `auth.js`, `api.js`), API URL được cấu hình như sau:
-
-```javascript
-const API_BASE_URL = "http://localhost:8000/api/v1";
-```
-
-Đảm bảo backend đang chạy trên `localhost:8000`.
-
-### 3. Lý do sử dụng localhost:5500 thay vì 127.0.0.1
-- **Tránh lỗi CORS**: Khi frontend chạy trên `127.0.0.1:5500` và backend trên `localhost:8000`, trình duyệt có thể coi đây là domain khác nhau, gây ra lỗi CORS (Cross-Origin Resource Sharing).
-- **localhost** được coi là domain hợp lệ và tương thích hơn với các chính sách bảo mật của trình duyệt.
-
-### 4. Cấu trúc Thư mục Frontend
+## Cấu trúc Thư mục Frontend
 ```
 frontend/
 ├── core/
@@ -65,13 +51,3 @@ frontend/
 │       └── setting.js
 └── README.md                 # Tài liệu này
 ```
-
-### 5. Xác thực và Phiên làm việc
-- Hệ thống sử dụng cookie session để xác thực
-- Không lưu access token trong localStorage
-- Frontend gửi requests với `credentials: "include"` để tự động gửi cookie
-
-### 6. Troubleshooting
-- **Lỗi CORS**: Đảm bảo frontend chạy trên `localhost:5500` và backend trên `localhost:8000`
-- **Không thể kết nối API**: Kiểm tra backend có đang chạy không
-- **Session không hoạt động**: Xóa cookie và đăng nhập lại
