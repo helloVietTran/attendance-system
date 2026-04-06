@@ -1,53 +1,78 @@
-# Frontend Documentation
+# Frontend Real - Hướng Dẫn Lập Trình
 
-## Tổng quan
-Frontend của hệ thống quản lý nhân sự được xây dựng bằng HTML, CSS và JavaScript thuần. Giao diện sử dụng các component tĩnh và tương tác với backend API qua HTTP requests.
+## Cấu trúc thư mục
 
-## Lưu ý khi call API
-- Hệ thống hiện tại sử dụng **JWT** để xác thực thay vì session server-side.
-- Access token được lưu trong `localStorage` với key `access_token`.
-- Khi gọi request tới backend, hãy dùng helper `fetchWithAuth(url, options)` trong `frontend/core/js/api.js`.
-- `fetchWithAuth` sẽ tự động thêm header `Authorization: Bearer <token>` và `Content-Type: application/json`.
-
-## Chạy frontend
-1. Mở Visual Studio Code
-2. Cài đặt extension "Live Server" nếu chưa có
-3. Mở thư mục `frontend` trong VS Code
-4. Click chuột phải vào file `base.html` (hoặc file HTML chính) và chọn "Open with Live Server"
-5. Hoặc sử dụng command palette: `Ctrl+Shift+P` → "Live Server: Open with Live Server"
-
-## Cấu trúc Thư mục Frontend
 ```
-frontend/
-├── core/
-│   ├── css/
-│   │   └── main.css          # CSS chính
-│   ├── js/
-│   │   ├── api.js            # Hàm gọi API chung
-│   │   ├── auth.js           # Xử lý xác thực
-│   │   └── router.js         # Điều hướng trang
-│   └── layout/
-│       ├── base.html         # Layout chính
-│       ├── header.html       # Header
-│       └── sidebar.html      # Sidebar
-├── pages/
-│   ├── Authentication/
-│   │   ├── auth.css
-│   │   ├── auth.js
-│   │   └── login.html        # Trang đăng nhập
-│   ├── Dashboard/
-│   │   ├── dashboard.css
-│   │   ├── dashboard.js
-│   │   └── index.html        # Trang dashboard
-│   ├── Reports/
-│   │   ├── attendance.html
-│   │   ├── reports-main.js
-│   │   └── reports.css
-│   └── Setting/
-│       ├── setting_system.html
-│       ├── setting_time_tracking.html
-│       ├── setting.css
-│       ├── setting.html
-│       └── setting.js
-└── README.md                 # Tài liệu này
+frontend-real/
+├── login.html             # Trang đăng nhập
+├── daily_reports.html     # Trang báo cáo công hàng ngày
+├── notifications.html     # Trang thông báo
+├── css/
+│   ├── login.css          # CSS cho trang đăng nhập
+│   └── main.css           # CSS chung cho toàn bộ ứng dụng
+├── js/
+│   ├── constant.js        # Hằng số API (BASE_URL, API_PREFIX, API_URL)
+│   ├── login.js           # Logic xử lý đăng nhập
+│   ├── shared.js          # Các hàm dùng chung (checkAuth, logout, showMessage)
+│   └── api.js             # Các hàm gọi API (fetchWithAuth)
+```
+
+## Giải thích các file
+
+### Root Files
+- `login.html` - Trang đăng nhập, form email/password
+- `daily_reports.html` - Trang xem báo cáo công hàng ngày
+- `notifications.html` - Trang xem thông báo
+
+### CSS Files
+- `css/login.css` - Styling riêng cho trang login
+- `css/main.css` - CSS chung, variables, layout cơ bản
+
+### JS Files
+- `js/constant.js` - Định nghĩa URL API
+- `js/login.js` - Xử lý đăng nhập, gọi API login
+- `js/shared.js` - Hàm dùng chung: checkAuth(), logout(), showMessage()
+- `js/api.js` - Hàm fetchWithAuth() để gọi API có authentication
+
+## Thứ tự import khi thêm file mới
+
+Khi tạo trang HTML mới, import theo thứ tự này:
+
+```html
+<script src="../js/constant.js"></script>     <!-- 1. Constants trước -->
+<script src="../js/shared.js"></script>       <!-- 2. Shared functions -->
+<script src="../js/api.js"></script>          <!-- 3. API functions -->
+<script src="./your-page.js"></script>        <!-- 4. Page logic cuối -->
+```
+
+## Sửa menu item
+
+Menu được định nghĩa trong HTML của từng trang. Để sửa menu:
+
+1. Mở file HTML của trang
+2. Tìm phần menu/sidebar
+3. Sửa text và href của menu item
+
+Ví dụ:
+```html
+<a href="./daily_reports.html">Báo cáo công</a>
+```
+
+## Gọi API dùng fetchWithAuth
+
+Sử dụng hàm `fetchWithAuth()` từ `js/api.js`:
+
+```javascript
+// GET request
+const response = await fetchWithAuth(`${API_URL}/endpoint`);
+const data = await response.json();
+
+// POST request
+const response = await fetchWithAuth(`${API_URL}/endpoint`, {
+    method: 'POST',
+    body: JSON.stringify({ key: 'value' })
+});
+const data = await response.json();
+
+// Hàm tự động thêm Authorization header với token từ localStorage
 ```

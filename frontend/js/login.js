@@ -20,8 +20,9 @@ async function login() {
 
         if (res.ok) {
             localStorage.setItem("access_token", result.data.access_token);
+            localStorage.setItem("user", result.data.user);
 
-            window.location.href = "../../core/layout/base.html";
+            window.location.href = "./daily_reports.html";
         } else {
             document.getElementById("message").innerText =
                 result.detail || "Đăng nhập thất bại";
