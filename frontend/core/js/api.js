@@ -38,6 +38,6 @@ async function protectPage() {
 
     if (!isAuth) {
         console.log("User not authenticated, redirecting to login...");
-        window.location.href = "../../pages/Authentication/login.html";
+        //window.location.href = "../../pages/Authentication/login.html";
     }
 }
