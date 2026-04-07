@@ -27,13 +27,14 @@ class AttendanceService:
         db.refresh(db_obj)
         return db_obj
 
-    def get_attendance_logs_by_month(self, db: Session, employee_id: int, month: int, year: int):
-        """Lấy danh sách chấm công của nhân viên trong một tháng cụ thể"""
+    def get_attendance_logs_by_day(self, db: Session, employee_id: int, day: int, month: int, year: int):
+        """Lấy danh sách chấm công của nhân viên theo một ngày cụ thể"""
         return db.query(AttendanceLog).filter(
             AttendanceLog.employee_id == employee_id,
+            extract('day', AttendanceLog.log_date) == day,
             extract('month', AttendanceLog.log_date) == month,
             extract('year', AttendanceLog.log_date) == year
-        ).order_by(AttendanceLog.log_date.asc(), AttendanceLog.checked_time.asc()).all()
+        ).order_by(AttendanceLog.checked_time.asc()).all()
 
     def process_daily_attendance(self, db: Session, employee_id: int, work_date: date):
         working_days = calendar_service.get_working_days_list(db, work_date, work_date)
