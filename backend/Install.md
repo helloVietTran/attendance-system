@@ -1,16 +1,19 @@
 ## 🚀 Cài Đặt & Chạy Dự Án
 
 ### **Yêu Cầu Hệ Thống**
+
 - **Python**: 3.10 hoặc cao hơn
 - **MySQL**: 5.7 hoặc cao hơn
 
 ### **1. Clone Dự Án**
+
 ```bash
 git clone https://github.com/helloVietTran/attendance-system
 cd backend
 ```
 
 ### **2. Tạo Virtual Environment**
+
 ```bash
 # Windows
 python -m venv venv
@@ -22,12 +25,15 @@ source venv/bin/activate
 ```
 
 ### **3. Cài Đặt Dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### **4. Cấu Hình Biến Môi Trường**
+
 Tạo file `.env` trong thư mục `backend/`:
+
 ```env
 DATABASE_URL=mysql+pymysql://username:password@localhost:3306/attendance_db
 SECRET_KEY=your-secret-key-here
@@ -36,6 +42,7 @@ OVERTIME_YEARLY_LIMIT_MINS=12000  # 200 giờ = 12000 phút
 ```
 
 ### **5. Khởi Tạo Database**
+
 ```bash
 # Chạy script init SQL
 mysql -u root -p < init.sql
@@ -45,11 +52,13 @@ python -c "from app.db.session import init_db; init_db()"
 ```
 
 ### **6. Chạy Server**
+
 ```bash
 uvicorn app.main:app --reload
 ```
 
 Server sẽ chạy tại: **http://localhost:8000**
+
 - API Docs: **http://localhost:8000/docs** (Swagger UI)
 - ReDoc: **http://localhost:8000/redoc**
 
@@ -119,4 +128,5 @@ pytest -v
 # Chạy với coverage
 pytest --cov=app
 ```
+
 ---
