@@ -3,13 +3,13 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!sidebarContainer) return;
 
   const menuItems = [
-    { text: "Công số hàng ngày", icon: "fa-file-invoice", link: "daily_reports.html" },
+    { text: "Công số hàng ngày", icon: "fa-file-invoice", link: "/attendance-system/frontend/daily_reports.html" },
     { text: "Dashboard", icon: "fa-gauge", link: "dashboard.html" },
-    { text: "Thời gian làm việc", icon: "fa-clock", link: "working_time.html" },
-    { text: "Thông báo", icon: "fa-bell", link: "notifications.html" },
-    { text: "Thông tin nhân viên", icon: "fa-user", link: "profile.html" },
-    { text: "Ngày nghỉ", icon: "fa-calendar-check", link: "leave_requests.html" },
-    { text: "Cài Đặt", icon: "fa-gear", link: "settings.html" },
+    { text: "Thời gian làm việc", icon: "fa-clock", link: "/attendance-system/frontend/pages/TimeTracking/TimeTracking.html" },
+    { text: "Thông báo", icon: "fa-bell", link: "/attendance-system/frontend/pages/Notifications/notifications.html" },
+    { text: "Thông tin nhân viên", icon: "fa-user", link: "/attendance-system/frontend/pages/Employees/employees.html" },
+    { text: "Ngày nghỉ", icon: "fa-calendar-check", link: "/attendance-system/frontend/pages/TimeOff/timeoff.html" },
+    { text: "Cài Đặt", icon: "fa-gear", link: "/attendance-system/frontend/pages/Setting/Setting_System.html" },
   ];
 
   // Lấy tên file hiện tại từ URL (ví dụ: daily_reports.html)
@@ -27,9 +27,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   menuItems.forEach((item) => {
     // Chuẩn hóa link để so sánh: xóa bỏ "./" nếu có
-    const normalizedLink = item.link.replace("./", "");
-    const isActive = currentPath === normalizedLink ? "active-menu" : "";
-    
+    const isActive = window.location.pathname.includes(item.link)
+      ? "active-menu"
+      : "";
+
     menuHtml += `
       <li class="${isActive}">
         <a href="${item.link}" style="text-decoration: none; color: inherit; display: block; padding: 12px 20px;">
