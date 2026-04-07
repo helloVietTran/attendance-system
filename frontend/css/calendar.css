@@ -1,0 +1,110 @@
+/* Custom FullCalendar Styles */
+#calendar {
+    max-width: 100%;
+    margin: 0 auto;
+    font-size: 14px;
+}
+
+/* Đổi màu tiêu đề các thứ */
+.fc-theme-standard th {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+}
+
+/* Mặc định Thứ 7, Chủ Nhật có màu xám */
+.fc-day-sat,
+.fc-day-sun {
+    background-color: #f0f0f0 !important;
+}
+
+
+/* .is-makeup-day {
+    background-color: #ffffff !important;
+} */
+
+/* Ghi đè: Nếu Thứ 7, CN được đánh dấu là ngày làm bù thì chuyển thành màu trắng */
+/* .fc-day-sat.is-makeup-day,
+.fc-day-sun.is-makeup-day {
+    background-color: #ffffff !important;
+} */
+
+/* Cấu hình các style hiển thị sự kiện nghỉ lễ chiếm toàn bộ ô lịch */
+.vacation-annual-bg {
+    background-color: #4caf50 !important;
+    /* Xanh */
+    opacity: 0.8 !important;
+}
+
+.vacation-emergency-bg {
+    background-color: #f44336 !important;
+    /* Đỏ */
+    opacity: 0.8 !important;
+}
+
+.vacation-company_event-bg {
+    background-color: #e0e323 !important;
+    /* Vàng */
+    opacity: 0.8 !important;
+}
+
+/* Hiệu ứng khi hover vào ô lịch */
+.fc-daygrid-day:hover {
+    cursor: pointer;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* UI Chú thích (Legend) */
+.note-container {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Cấu hình event text để không tràn ra ngoài */
+.fc .fc-event {
+    padding: 2px !important;
+    margin: 0 !important;
+    white-space: normal;
+    word-wrap: break-word;
+    max-height: 100% !important;
+    overflow: hidden !important;
+
+}
+
+.color-box {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.bg-annual {
+    background-color: #4caf50;
+}
+
+.bg-emergency {
+    background-color: #f44336;
+}
+
+.bg-company_event {
+    background-color: #e0e323;
+}
+
+.bg-weekend {
+    background-color: #f0f0f0;
+}
+
+.bg-makeup {
+    background-color: #ffffff;
+}
+
+/* Ẩn bớt các text thừa của thư viện */
+.fc-daygrid-event-dot {
+    display: none;
+}
+
+.fc-event-title {
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    padding: 2px;
+}
