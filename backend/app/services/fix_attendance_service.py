@@ -83,5 +83,15 @@ class FixAttendanceService:
         db.refresh(fix_req)
 
         return fix_req
+    
+    def get_my_corrections(self, db: Session, employee_id: int, month: int = None, year: int = None):
+        query = db.query(AttendanceCorrection).filter(AttendanceCorrection.employee_id == employee_id)
+        
+        if month:
+            query = query.filter(extract('month', AttendanceCorrection.work_date) == month)
+        if year:
+            query = query.filter(extract('year', AttendanceCorrection.work_date) == year)
+            
+        return query.order_by(AttendanceCorrection.work_date.desc()).all()
 
 fix_attendance_service = FixAttendanceService()

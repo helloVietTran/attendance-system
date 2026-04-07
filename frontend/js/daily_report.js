@@ -1,36 +1,70 @@
-/**
- * Khởi tạo trang Báo Cáo Công
- */
-async function initReportsPage() {
-    // kiểm tra đăng nhập chưa
-    await checkAuthAndGetUser();
+let myFixRequests = [];
 
-    const monthSelect = document.getElementById('report-month');
-    const yearInput = document.getElementById('report-year');
-    const filterBtn = document.getElementById('report-filter-btn');
+$(document).ready(function () {
+    const $monthSelect = $('#report-month');
+    const $yearInput = $('#report-year');
+    const $filterBtn = $('#report-filter-btn');
 
-    if (!monthSelect || !yearInput || !filterBtn) return;
+    if ($monthSelect.length === 0 || $yearInput.length === 0 || $filterBtn.length === 0) return;
 
-    // Set mặc định tháng/năm hiện tại vào Filter
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
 
-    monthSelect.value = currentMonth;
-    yearInput.value = currentYear;
+    $monthSelect.val(currentMonth);
+    $yearInput.val(currentYear);
 
-    // Sự kiện nút tìm kiếm
-    filterBtn.addEventListener('click', () => {
-        fetchAndRenderReports(monthSelect.value, yearInput.value);
+    async function initReportsPage() {
+        try {
+            await checkAuthAndGetUser();
+
+            const month = $monthSelect.val();
+            const year = $yearInput.val();
+
+            await fetchMyFixRequests(month, year);
+            await fetchAndRenderReports(month, year);
+
+        } catch (error) {
+            console.error("Lỗi khởi tạo:", error);
+        }
+    }
+
+    $filterBtn.on('click', function () {
+        const m = $monthSelect.val();
+        const y = $yearInput.val();
+
+        fetchMyFixRequests(m, y);
+        fetchAndRenderReports(m, y);
     });
 
-    // Chạy lần đầu khi load trang
-    await fetchAndRenderReports(currentMonth, currentYear);
+    initReportsPage();
+});
+
+//------- Call API--------
+function fetchMyFixRequests(month, year) {
+    return $.ajax({
+        url: '/fix-attendance-requests/my-requests',
+        type: 'GET',
+        data: {
+            month: month,
+            year: year
+        },
+        success: function (response) {
+
+            myFixRequests = response.data || [];
+            console.log("Đã cập nhật mảng myFixRequests:", myFixRequests);
+
+        },
+        error: function (xhr) {
+            if (typeof showToast === "function") {
+                showToast("Không thể tải danh sách yêu cầu sửa công", "danger");
+            } else {
+                console.error("Lỗi tải yêu cầu sửa công:", xhr);
+            }
+        }
+    });
 }
 
-/**
- * Lấy dữ liệu từ API và render
- */
 async function fetchAndRenderReports(month, year) {
     const user = JSON.parse(localStorage.getItem("user"));
     const employeeId = user?.id ?? null;
@@ -44,14 +78,13 @@ async function fetchAndRenderReports(month, year) {
     }
 
     const apiUrl = `${API_URL}/attendance/daily-reports/${employeeId}?month=${month}&year=${year}`;
-    
+
     try {
         tbody.innerHTML = `<tr><td colspan="8" class="empty-state-cell">Đang tải dữ liệu...</td></tr>`;
 
         const response = await fetch(apiUrl);
         const result = await response.json();
 
-        // Kiểm tra status 1000 (theo logic backend của bạn)
         if (result.status === 1000 && result.data) {
             renderSummary(result.data);
             renderTable(result.data);
@@ -65,6 +98,50 @@ async function fetchAndRenderReports(month, year) {
     }
 }
 
+function submitFixRequest() {
+    const workDate = $('#modal-work-date').val();
+    const checkIn = $('#modal-check-in').val();
+    const checkOut = $('#modal-check-out').val();
+    const reason = $('#modal-reason').val();
+
+    if (!checkIn || !checkOut || !reason) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+    }
+
+    const payload = {
+        work_date: workDate,
+        requested_check_in: `${checkIn}:00`,
+        requested_check_out: `${checkOut}:00`,
+        reason: reason
+    };
+
+    $.ajax({
+        url: '/fix-attendance-requests',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        beforeSend: function () {
+
+            $('button[onclick="submitFixRequest()"]').prop('disabled', true).text('Đang gửi...');
+        },
+        success: function (res) {
+            showToast("Gửi yêu cầu thành công!", "success");
+            const modalElement = document.getElementById('fixAttendanceModal');
+            bootstrap.Modal.getInstance(modalElement).hide();
+            // Reset form
+            $('#modal-reason').val('');
+        },
+        error: function (xhr) {
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Không thể gửi yêu cầu";
+            showToast("Lỗi: " + errorMsg, "danger");
+            console.log(xhr.responseJSON)
+        },
+        complete: function () {
+            $('button[onclick="submitFixRequest()"]').prop('disabled', false).html('Gửi yêu cầu');
+        }
+    });
+}
 /**
  * Render các thẻ Thống kê (Stat Cards)
  */
@@ -83,7 +160,6 @@ function renderSummary(data) {
 
     const totalHours = (totalWorkMinutes / 60).toFixed(1);
 
-    // Update UI (Dựa trên ID trong HTML của bạn)
     document.getElementById('report-total-work-hours').innerText = `${totalHours}h`;
     document.getElementById('report-total-late').innerText = `${totalLate}p`;
     document.getElementById('report-total-early').innerText = `${totalEarly}p`;
@@ -93,21 +169,71 @@ function renderSummary(data) {
 /**
  * Render bảng chi tiết
  */
+
+function getFixStatus(item) {
+    const requestFound = myFixRequests.find(req => req.work_date === item.work_date);
+
+    const isRequested = !!requestFound;
+    const hasLack = item.lack_minutes > 0;
+
+    return {
+        canFix: hasLack && !isRequested,
+        isRequested: isRequested,
+        requestInfo: requestFound
+    };
+}
+
 function renderTable(data) {
     const tbody = document.getElementById('reports-tbody');
-    
+
     if (!data || data.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="empty-state-cell">Không có dữ liệu công số hàng ngày</td></tr>`;
         return;
     }
 
+
     const rowsHtml = data.map(item => {
-        // Xử lý ngày hiển thị (VD: 2026-04-06 -> 06/04)
         const d = new Date(item.work_date);
-        const displayDate = !isNaN(d) 
+        const displayDate = !isNaN(d)
             ? `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`
             : item.work_date;
-        
+
+        const status = getFixStatus(item);
+
+        let actionHtml = '';
+
+        if (status.canFix) {
+            actionHtml = `
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <ul class="dropdown-menu shadow">
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" 
+                               onclick="openFixModal('${item.work_date}', '${item.check_in || ''}', '${item.check_out || ''}')">
+                               <i class="fa-solid fa-file-signature me-2 text-primary"></i>Tạo yêu cầu sửa công
+                            </a>
+                        </li>
+                    </ul>
+                </div>`;
+        } else if (status.isRequested) {
+
+            const s = status.requestInfo.status.toLowerCase();
+            const config = {
+                'approved': { class: 'bg-success text-white', text: 'Chấp nhận' },
+                'rejected': { class: 'bg-danger text-white', text: 'Từ chối' },
+                'pending': { class: 'bg-warning text-dark', text: 'Chờ sửa công' }
+            };
+
+            const res = config[s] || config['pending'];
+
+            actionHtml = `
+                <span class="badge ${res.class}" style="font-size: 0.65rem; min-width: 80px;">
+                   ${res.text}
+                </span>`
+        }
+
         return `
             <tr>
                 <td style="font-weight: 500;">${displayDate}</td>
@@ -118,6 +244,7 @@ function renderTable(data) {
                 <td class="${(item.leave_early_minutes || 0) > 0 ? 'text-warning fw-bold' : ''}">${item.leave_early_minutes || 0}</td>
                 <td class="${(item.lack_minutes || 0) > 0 ? 'text-danger fw-bold' : ''}">${item.lack_minutes || 0}</td>
                 <td class="${(item.overtime_minutes || 0) > 0 ? 'text-success fw-bold' : ''}">${item.overtime_minutes || 0}</td>
+                <td>${actionHtml}</td>
             </tr>
         `;
     }).join('');
@@ -125,5 +252,15 @@ function renderTable(data) {
     tbody.innerHTML = rowsHtml;
 }
 
-// Khởi tạo khi trang sẵn sàng
-document.addEventListener('DOMContentLoaded', initReportsPage);
+// Modal fix attendance
+function openFixModal(date, currentIn, currentOut) {
+    $('#modal-work-date').val(date);
+    $('#display-date').text(date);
+
+    $('#modal-check-in').val(currentIn ? currentIn.substring(0, 5) : "");
+    $('#modal-check-out').val(currentOut ? currentOut.substring(0, 5) : "");
+
+    const modalElement = document.getElementById('fixAttendanceModal');
+    const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    myModal.show();
+}

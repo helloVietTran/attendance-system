@@ -5,22 +5,23 @@ from datetime import date, datetime
 
 from app.db.session import get_db
 from app.services.attendance_service import attendance_service
-from app.schemas.attendance_log import AttendanceResponse
+from app.schemas.attendance_log import AttendanceLogResponse
 from app.schemas.daily_work_report import DailyWorkReportResponse
 from app.schemas.base import ResponseSchema
 from app.core.dependency import get_current_user
 
 router = APIRouter(prefix="/attendance", tags=["Chấm công & Báo cáo công"])
 
-@router.get("/logs/{employee_id}", response_model=ResponseSchema[AttendanceResponse])
+@router.get("/logs/{employee_id}", response_model=ResponseSchema[List[AttendanceLogResponse]])
 def get_attendance_logs_by_empId(
     employee_id: int,
-    month: int = Query(..., ge=1, le=12),
-    year: int = Query(default=datetime.now().year),
+    day: int = Query(..., ge=1, le=31, description="Ngày cần lấy log"),
+    month: int = Query(..., ge=1, le=12, description="Tháng cần lấy log"),
+    year: int = Query(default=datetime.now().year, description="Năm cần lấy log"),
     db: Session = Depends(get_db)
 ):
-    """Lấy log chấm công tháng của 1 nhân viên"""
-    return ResponseSchema(data=attendance_service.get_attendance_logs_by_month(db, employee_id, month, year))
+    """Lấy log chấm công theo ngày cụ thể của 1 nhân viên"""
+    return ResponseSchema(data=attendance_service.get_attendance_logs_by_day(db, employee_id, day, month, year))
 
 @router.post(
     "/logs/calculate", 

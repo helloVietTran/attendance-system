@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from typing import List, Optional
 
 from app.core.dependency import get_current_user, role_required
 from app.db.session import get_db
@@ -14,9 +15,26 @@ router = APIRouter(prefix="/fix-attendance-requests", tags=["Yêu cầu sửa c�
 def request_fix_attendance(
     obj_in: CorrectionCreate, 
     db: Session = Depends(get_db),
-    emp_id: int = Depends(get_current_user)
+    current_user: int = Depends(get_current_user)
 ):
-    result = fix_attendance_service.create_correction_request(db, emp_id, obj_in)
+    result = fix_attendance_service.create_correction_request(db, current_user["id"], obj_in)
+    return ResponseSchema(data=result)
+
+@router.get("/my-requests", response_model=ResponseSchema[List[CorrectionResponse]])
+def get_my_fix_attendance(
+    month: Optional[int] = None,
+    year: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    user_id = current_user["id"]
+    
+    result = fix_attendance_service.get_my_corrections(
+        db, 
+        employee_id=user_id, 
+        month=month, 
+        year=year
+    )
     return ResponseSchema(data=result)
 
 @router.put("/{fix_id}/approve", response_model=ResponseSchema[CorrectionResponse])
