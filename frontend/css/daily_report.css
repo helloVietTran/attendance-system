@@ -2,7 +2,6 @@
    Reports & Attendance Page Styles
    ============================================ */
 
-
 .reports-header {
     margin-bottom: 30px;
 }
@@ -18,8 +17,6 @@
     color: #999;
 }
 
-
-
 /* ============================================
    Filter Section
    ============================================ */
@@ -27,22 +24,21 @@
 /* Container chính của bộ lọc */
 .filter-section.card-light {
     background-color: #ffffff;
-    border: 1px solid #f0f0f0; /* Màu border bạn đã chọn cho Header */
+    border: 1px solid #f0f0f0;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 25px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-/* Chia cột cho các thành phần bên trong */
+
 .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
-    align-items: flex-end; /* Căn đều các ô và nút bấm theo đáy */
+    align-items: flex-end;
 }
 
-/* Group bao gồm Label và Input */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -61,7 +57,7 @@
     width: 100%;
     padding: 10px 12px;
     font-size: 14px;
-    color: #262626; /* Màu chữ chính bạn chọn */
+    color: #262626;
     background-color: #ffffff;
     border: 1px solid #d9d9d9;
     border-radius: 4px;
@@ -71,7 +67,7 @@
 
 /* Hiệu ứng khi click vào ô nhập liệu */
 .custom-input:focus {
-    border-color: #007bff; /* Màu accent xanh dương */
+    border-color: #007bff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
@@ -80,7 +76,7 @@
     background-color: #007bff;
     color: #ffffff;
     border: none;
-    padding: 11px 20px; /* Căn chỉnh để cao bằng các ô input */
+    padding: 11px 20px;
     border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
@@ -122,14 +118,13 @@
 
 /* Thẻ thống kê chi tiết */
 .stat-card {
-    background-color: #ffffff; /* Nền trắng nổi bật trên nền xám nhẹ */
-    border: 1px solid #f0f0f0; /* Border cùng màu với Header */
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0;
     border-radius: 8px;
     padding: 18px 15px;
     transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); /* Đổ bóng cực nhẹ */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
-
 /* Hiệu ứng khi di chuột vào thẻ */
 .stat-card:hover {
     transform: translateY(-3px); /* Nhấc nhẹ thẻ lên */
@@ -139,9 +134,9 @@
 
 /* Nhãn tiêu đề nhỏ phía trên (Tổng giờ làm, Tổng phút...) */
 .stat-card p:first-child {
-    color: #8c8c8c; /* Màu xám nhạt (muted) */
+    color: #8c8c8c;
     font-size: 12px;
-    text-transform: uppercase; /* Viết hoa nhẹ để trông chuyên nghiệp hơn */
+    text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 10px;
     font-weight: 600;
@@ -155,28 +150,23 @@
     line-height: 1;
 }
 
-/* Tùy chỉnh màu sắc riêng cho từng loại chỉ số (Sử dụng ID hoặc Class) */
 
-/* Màu xanh dương cho Giờ làm việc */
 #report-total-work-hours {
     color: #007bff;
 }
 
-/* Màu cam cho Đi muộn / Về sớm */
 #report-total-late, 
 #report-total-early {
     color: #f39c12;
 }
 
-/* Màu xanh lá cho Làm thêm (OT) */
 #report-total-ot {
     color: #28a745;
 }
 
-/* Responsive cho thiết bị di động */
 @media (max-width: 600px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr); /* Chia 2 cột trên mobile */
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
     
@@ -195,7 +185,10 @@
     padding: 20px;
     margin-top: 25px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    overflow-x: auto;
+
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 
@@ -210,6 +203,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    min-width: 800px; 
 }
 
 /* Header của bảng */
@@ -247,7 +241,6 @@
     background-color: #ffffff !important;
 }
 
-/* Tùy chỉnh thanh cuộn ngang cho bảng (nếu cần) */
 .table-wrapper::-webkit-scrollbar {
     height: 6px;
 }

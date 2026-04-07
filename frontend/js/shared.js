@@ -1,3 +1,7 @@
+$(document).ready(function() { 
+    updateHeaderUserInfo();
+});
+
 async function checkAuthAndGetUser() {
     const token = localStorage.getItem("access_token");
     
@@ -48,31 +52,27 @@ function logout() {
     window.location.href = "./login.html";
 }
 
+// lấy user từ localstorage tiêm vào header
 function updateHeaderUserInfo() {
-    try {
-        const userData = localStorage.getItem("user");
-        if (!userData) return;
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+        const user = JSON.parse(userStr);
 
-        const user = JSON.parse(userData);
-
-        // 1. Hiển thị Email
-        const emailElem = document.getElementById('user-email-display');
-        if (emailElem && user.email) {
-            emailElem.innerText = user.email;
-        }
-
-        // 2. Hiển thị Chữ cái đầu in hoa cho Badge
-        const nameElem = document.getElementById('user-name-badge');
-        if (nameElem && user.full_name) {
-         
-            const firstName = user.full_name.trim().split(' ').pop(); 
-            const firstLetter = firstName.charAt(0).toUpperCase();
-            
-            nameElem.innerText = firstLetter;
-        }
-    } catch (error) {
-        console.error("Không thể lấy thông tin user từ localStorage", error);
+        $('#user-email-display').text(user.email || 'N/A');
+        
+        const displayChar = user.full_name ? user.full_name.charAt(0) : (user.email ? user.email.charAt(0) : 'U');
+        $('#user-name-badge').text(displayChar.toUpperCase());
     }
 }
 
-updateHeaderUserInfo();
+function showToast(message, type = 'success') {
+    const $toastEl = $('#liveToast');
+    
+    $toastEl.removeClass('bg-success bg-danger');
+    $toastEl.addClass(type === 'success' ? 'bg-success' : 'bg-danger');
+    
+    $('#toast-message').text(message);
+    
+    const toast = new bootstrap.Toast($toastEl[0]);
+    toast.show();
+}
