@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const menuItems = [
     { text: "Công số hàng ngày", icon: "fa-file-invoice", link: "daily_reports.html" },
+    { text: "Chấm công", icon: "fa-id-badge", link: "attendance.html" },
     { text: "Dashboard", icon: "fa-gauge", link: "dashboard.html" },
     { text: "Thời gian làm việc", icon: "fa-clock", link: "working_time.html" },
     { text: "Thông báo", icon: "fa-bell", link: "notifications.html" },
