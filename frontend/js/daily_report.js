@@ -223,7 +223,7 @@ function renderTable(data) {
             const config = {
                 'approved': { class: 'bg-success text-white', text: 'Chấp nhận' },
                 'rejected': { class: 'bg-danger text-white', text: 'Từ chối' },
-                'pending': { class: 'bg-warning text-dark', text: 'Đang chờ' }
+                'pending': { class: 'bg-warning text-dark', text: 'Chờ sửa công' }
             };
 
             const res = config[s] || config['pending'];

@@ -8,6 +8,12 @@ class AttendanceCreate(BaseModel):
     shift_end: time
     checked_time: time
 
-class AttendanceResponse(AttendanceCreate):
+class AttendanceLogResponse(BaseModel):
     id: int
+    employee_id: int
+    log_date: date
+    shift_start: time 
+    shift_end: time
+    checked_time: time
+
     model_config = ConfigDict(from_attributes=True)
