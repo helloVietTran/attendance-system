@@ -1,110 +1,290 @@
-/* Custom FullCalendar Styles */
-#calendar {
-    max-width: 100%;
-    margin: 0 auto;
-    font-size: 14px;
+
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
 }
 
-/* Đổi màu tiêu đề các thứ */
-.fc-theme-standard th {
-    background-color: #f8f9fa;
-    padding: 10px 0;
+.main-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Mặc định Thứ 7, Chủ Nhật có màu xám */
+#header-container {
+  height: 60px;
+  flex-shrink: 0;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#report-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.header-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-badge {
+  background-color: #ff9800;
+  color: #fff;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.user-email-display {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.page-title {
+  color: #262626;
+  margin: 0;
+  font-weight: 500;
+}
+
+.note-container {
+  height: fit-content;
+}
+
+.legend-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.legend-chip--holiday {
+  background-color: #4caf50;
+}
+
+.legend-chip--emergency {
+  background-color: #ffc107;
+}
+
+.legend-chip--weekend {
+  background-color: #ffffff;
+}
+
+.modal-description {
+  font-size: 0.875rem;
+}
+
+.toast-area {
+  z-index: 1055;
+}
+
+.fc-event.is-compensation {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  font-weight: 500 !important;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 0.85em;
+}
+
+.fc-event.is-compensation:hover {
+  background-color: #f1f5f9 !important;
+}
+
 .fc-day-sat,
 .fc-day-sun {
-    background-color: #f0f0f0 !important;
+  background-color: #f8f9fa !important;
 }
 
-
-/* .is-makeup-day {
-    background-color: #ffffff !important;
-} */
-
-/* Ghi đè: Nếu Thứ 7, CN được đánh dấu là ngày làm bù thì chuyển thành màu trắng */
-/* .fc-day-sat.is-makeup-day,
-.fc-day-sun.is-makeup-day {
-    background-color: #ffffff !important;
-} */
-
-/* Cấu hình các style hiển thị sự kiện nghỉ lễ chiếm toàn bộ ô lịch */
-.vacation-annual-bg {
-    background-color: #4caf50 !important;
-    /* Xanh */
-    opacity: 0.8 !important;
+.fc {
+  --fc-border-color: #e2e8f0;
+  --fc-daygrid-event-dot-width: 5px;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
-.vacation-emergency-bg {
-    background-color: #f44336 !important;
-    /* Đỏ */
-    opacity: 0.8 !important;
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: 1px solid #e2e8f0 !important;
 }
 
-.vacation-company_event-bg {
-    background-color: #e0e323 !important;
-    /* Vàng */
-    opacity: 0.8 !important;
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Hiệu ứng khi hover vào ô lịch */
+.fc .fc-col-header-cell {
+  background-color: #f1f5f9 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding: 14px 0 !important;
+  vertical-align: middle;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #475569 !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none !important;
+}
+
+.fc-theme-standard .fc-col-header-cell {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.fc .fc-daygrid-day {
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.fc .fc-day-sat .fc-col-header-cell-cushion,
+.fc .fc-day-sun .fc-col-header-cell-cushion {
+  color: #94a3b8 !important;
+}
+
+.fc .fc-daygrid-day-number {
+  color: #1e293b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 12px !important;
+  text-decoration: none !important;
+}
+
+.fc .fc-day-today {
+  background-color: #f1f5f9 !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  color: #0f172a;
+  font-weight: 700;
+}
+
 .fc-daygrid-day:hover {
-    cursor: pointer;
-    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+  background-color: #f8fafc;
+  cursor: pointer;
 }
 
-/* UI Chú thích (Legend) */
-.note-container {
-    font-size: 14px;
-    color: #555;
+.fc-v-event,
+.fc-h-event {
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  border: none !important;
+  margin-top: 2px !important;
 }
 
-/* Cấu hình event text để không tràn ra ngoài */
-.fc .fc-event {
-    padding: 2px !important;
-    margin: 0 !important;
-    white-space: normal;
-    word-wrap: break-word;
-    max-height: 100% !important;
-    overflow: hidden !important;
-
-}
-
-.color-box {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-}
-
-.bg-annual {
-    background-color: #4caf50;
-}
-
-.bg-emergency {
-    background-color: #f44336;
-}
-
-.bg-company_event {
-    background-color: #e0e323;
-}
-
-.bg-weekend {
-    background-color: #f0f0f0;
-}
-
-.bg-makeup {
-    background-color: #ffffff;
-}
-
-/* Ẩn bớt các text thừa của thư viện */
 .fc-daygrid-event-dot {
-    display: none;
+  display: none;
 }
 
-.fc-event-title {
-    color: white;
-    font-weight: 500;
-    text-align: center;
-    padding: 2px;
+.fc-header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.4rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  text-transform: capitalize;
+  letter-spacing: -0.02em;
+}
+
+.fc .fc-button {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.fc .fc-button:hover {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+  cursor: pointer;
+}
+
+.fc .fc-button:active,
+.fc .fc-button:focus {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px #e2e8f0 !important;
+}
+
+.fc .fc-icon {
+  font-size: 1rem !important;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+}
+
+@media (max-width: 768px) {
+  .fc-toolbar-title {
+    font-size: 1rem !important;
+  }
+  .note-container {
+    flex-direction: column;
+    gap: 10px !important;
+  }
+}
+
+.toast-header {
+  background-color: #0f172a;
+  color: white;
+}
+
+/* Làm mờ nút khi bị disabled */
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+/* Modal Styling đồng bộ */
+.modal-content {
+    border-radius: 12px;
+}
+
+.modal-header .modal-title {
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+/* Tránh giật khi nút thay đổi trạng thái */
+.btn {
+    transition: all 0.2s ease-in-out;
 }

@@ -162,3 +162,9 @@
         max-width: 100%;
     }
 }
+
+@media (max-width: 768px) {
+    #settings-container > div {
+        grid-template-columns: 1fr !important;
+    }
+}
