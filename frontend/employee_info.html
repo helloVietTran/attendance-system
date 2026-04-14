@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./css/variables.css" />
+    <link rel="stylesheet" href="./css/shared.css" />
+    <link rel="stylesheet" href="./css/employee_info.css" />
+    <link rel="icon" type="image/x-icon" href="./assest/favicon.svg">
+    <title>Thông tin nhân viên</title>
+  </head>
+
+  <body>
+    <div class="d-flex">
+      <!-- Header -->
+      <button
+        id="menu-toggle"
+        class="btn d-md-none"
+        style="position: fixed; top: 10px; left: 15px; z-index: 1100"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav id="sidebar-container" class="border-end shadow-sm"></nav>
+      <div id="sidebar-overlay"></div>
+      <!-- Header -->
+
+      <div class="main-wrapper">
+        <header id="header-container"></header>
+
+        <div class="p-4">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="card shadow-sm mb-4">
+                <div class="card-body text-center py-5">
+                  <div
+                    id="avatar-wrapper"
+                    class="mx-auto mb-3"
+                    style="width: 100px; height: 100px; position: relative"
+                  >
+                    <img
+                      id="info-avatar-img"
+                      src=""
+                      alt="Avatar"
+                      class="shadow-sm d-none"
+                      style="
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        border: 3px solid var(--primary-color);
+                      "
+                    />
+
+                    <div
+                      id="info-avatar-placeholder"
+                      class="shadow-sm"
+                      style="
+                        width: 100%;
+                        height: 100%;
+                        background-color: var(--primary-color);
+                        color: white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 40px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                      "
+                    >
+                      ?
+                    </div>
+                  </div>
+                  <h4 id="info-full-name" class="fw-bold mb-1">---</h4>
+                  <p id="info-role" class="text-muted mb-3">---</p>
+                  <span class="badge bg-success px-3 py-2">Đang làm việc</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-8">
+              <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                  <h5 class="mb-0 fw-semibold">
+                    <i class="fa-solid fa-user-gear me-2"></i>Hồ sơ chi tiết
+                  </h5>
+                </div>
+                <div class="card-body p-4">
+                  <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">
+                      Mã nhân viên:
+                    </div>
+                    <div id="info-id" class="col-sm-8 text-dark fw-medium">
+                      ---
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">Email:</div>
+                    <div id="info-email" class="col-sm-8 text-dark fw-medium">
+                      ---
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">
+                      Mã phòng ban:
+                    </div>
+                    <div id="info-dept" class="col-sm-8 text-dark fw-medium">
+                      Phòng số ---
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">
+                      Ngày sinh:
+                    </div>
+                    <div id="info-dob" class="col-sm-8 text-dark fw-medium">
+                      ---
+                    </div>
+                  </div>
+
+                  <h6 class="fw-bold mb-3 text-primary">
+                    <i class="fa-solid fa-calendar-days me-2"></i>Quỹ phép năm
+                  </h6>
+
+                  <div id="leave-balance" class="bg-light p-3 rounded mb-3">
+                    Đang tải dữ liệu...
+                  </div>
+
+                  <h6 class="fw-bold mb-3 text-primary">
+                    <i class="fa-solid fa-clock me-2"></i>Thông tin ca làm việc
+                  </h6>
+                  <div id="shift-container" class="bg-light p-3 rounded">
+                    <div id="current-shift" class="mb-3">
+                      Đang tải thông tin ca làm...
+                    </div>
+
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                      <select
+                        id="shift-select"
+                        class="form-select form-select-sm"
+                        style="max-width: 200px"
+                      >
+                        <option value="">Chọn ca mới</option>
+                      </select>
+
+                      <button
+                        id="btn-change-shift"
+                        class="btn btn-primary py-1 px-2"
+                        disabled
+                      >
+                        <i class="fa-solid fa-repeat me-1"></i> Đổi ca
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card shadow-sm mt-4">
+            <div
+              class="card-header bg-white py-3 d-flex justify-content-end align-items-center"
+            >
+              <div class="d-flex gap-2">
+                <select
+                  id="heatmap-month"
+                  class="form-select form-select-sm"
+                ></select>
+                <select
+                  id="heatmap-year"
+                  class="form-select form-select-sm"
+                ></select>
+              </div>
+            </div>
+            <div class="card-body">
+              <div
+                id="attendance-heatmap"
+                class="d-flex flex-wrap gap-1 justify-content-center"
+              ></div>
+              <div class="mt-4 d-flex justify-content-center gap-3 small">
+                <div class="d-flex align-items-center">
+                  <span class="badge-dot bg-success me-1"></span> Đầy đủ
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge-dot bg-warning me-1"></span> Muộn/Sớm
+                </div>
+                <div class="d-flex align-items-center">
+                  <span class="badge-dot bg-light border me-1"></span> Không có
+                  dữ liệu
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="liveToast"
+        class="toast align-items-center text-white border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body" id="toast-message"></div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./js/constant.js"></script>
+    <script src="./js/menu.js"></script>
+    <script src="./js/shared.js"></script>
+    <script src="./js/employee_info.js"></script>
+  </body>
+</html>
