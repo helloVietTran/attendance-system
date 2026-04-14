@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./css/variables.css" />
+    <link rel="stylesheet" href="./css/shared.css" />
+    <link rel="stylesheet" href="./css/ot_request.css" />
+    <title>Overtime</title>
+  </head>
+
+  <body>
+    <div class="d-flex">
+      <!-- Header -->
+      <button
+        id="menu-toggle"
+        class="btn d-md-none"
+        style="position: fixed; top: 10px; left: 15px; z-index: 1100"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav id="sidebar-container" class="border-end shadow-sm"></nav>
+      <div id="sidebar-overlay"></div>
+      <!-- Header -->
+
+      <div class="main-wrapper">
+       <header id="header-container"></header>
+       
+        <div class="p-4">
+          <ul class="nav nav-tabs" id="otTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="my-request-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#my-request"
+                type="button"
+                role="tab"
+                aria-controls="my-request"
+                aria-selected="true"
+              >
+                <i class="fa-solid fa-user-pen me-2"></i>Yêu cầu của tôi
+              </button>
+            </li>
+            <li
+              class="nav-item d-none"
+              id="admin-ot-tab-item"
+              role="presentation"
+            >
+              <button
+                class="nav-link"
+                id="manage-request-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#manage-request"
+                type="button"
+                role="tab"
+                aria-controls="manage-request"
+                aria-selected="false"
+              >
+                <i class="fa-solid fa-list-check me-2"></i>QL yêu cầu OT
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content mt-4" id="otTabsContent">
+            <!-- MY REQUEST -->
+            <div class="tab-pane fade show active" id="my-request">
+              <div class="p-4">
+                <div
+                  class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3"
+                >
+                  <h3 class="table-title mb-0">Danh sách yêu cầu OT của bạn</h3>
+
+                  <button
+                    class="btn btn-primary p-2 d-flex align-items-center justify-content-center shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addOTModal"
+                    style="border-radius: 6px"
+                  >
+                    <i class="fa-solid fa-plus me-2"></i>
+                    <span class="text-sm">Thêm yêu cầu mới</span>
+                  </button>
+                </div>
+
+                <div class="table-wrapper ot-card-panel">
+                  <table class="reports-table">
+                    <thead>
+                      <tr>
+                        <th>Ngày làm</th>
+                        <th>Thời gian</th>
+                        <th>Loại OT</th>
+                        <th>Công thực tế</th>
+                        <th>Hệ số</th>
+                        <th>Lý do</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ot-requests-body">
+                      <tr>
+                        <td colspan="6" class="empty-state-cell">
+                          Đang tải dữ liệu OT...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- MANAGE -->
+            <div class="tab-pane fade" id="manage-request">
+              <div class="p-4">
+                <div class="ot-filter-panel p-3 p-md-4 mb-4">
+                  <div class="row g-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-4">
+                      <label class="form-label ot-filter-label"
+                        >Tìm kiếm nhân viên</label
+                      >
+                      <div class="input-group ot-input-group">
+                        <span class="input-group-text">
+                          <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input
+                          type="text"
+                          id="adminSearchName"
+                          class="form-control"
+                          placeholder="Nhập tên nhân viên..."
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-3">
+                      <label class="form-label ot-filter-label"
+                        >Trạng thái</label
+                      >
+                      <select
+                        id="adminFilterStatus"
+                        class="form-select ot-select"
+                      >
+                        <option value="">Tất cả</option>
+                        <option value="PENDING">Chờ duyệt</option>
+                        <option value="APPROVED">Đã duyệt</option>
+                        <option value="REJECTED">Từ chối</option>
+                      </select>
+                    </div>
+
+                    <!-- Button -->
+                    <div class="col-md-3 d-grid">
+                      <button
+                        class="btn btn-success ot-action-btn btn-md"
+                        onclick="loadAdminOTRequests(1)"
+                      >
+                        <i class="fa-solid fa-filter me-2"></i>
+                        Lọc dữ liệu
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="table-wrapper ot-card-panel">
+                  <div
+                    class="table-header d-flex justify-content-between align-items-center mb-3"
+                  >
+                    <h3 class="table-title mb-0">
+                      Danh sách yêu cầu OT toàn công ty
+                    </h3>
+
+                    <button
+                      class="btn btn-secondary ot-action-btn d-flex align-items-center btn-sm"
+                      onclick="exportOTExcel()"
+                    >
+                      <i class="fa-solid fa-download me-2"></i>
+                      Xuất Excel
+                    </button>
+                  </div>
+                  <table class="reports-table">
+                    <thead>
+                      <tr>
+                        <th>Nhân viên</th>
+                        <th>Ngày làm</th>
+                        <th>Thời gian</th>
+                        <th>Hệ số</th>
+                        <th>Lý do</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody id="admin-ot-tbody"></tbody>
+                  </table>
+                  <div
+                    id="admin-ot-pagination"
+                    class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light border-top"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="addOTModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <!-- Header -->
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-semibold">Tạo yêu cầu OT</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- Form -->
+          <form id="addOTForm">
+            <div class="modal-body pt-2">
+              <div class="row g-3">
+                <!-- Ngày -->
+                <div class="col-12">
+                  <label class="form-label small text-muted"
+                    >Ngày làm việc</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="work_date"
+                    required
+                  />
+                </div>
+
+                <!-- Time -->
+                <div class="col-6">
+                  <label class="form-label small text-muted">Giờ bắt đầu</label>
+                  <input
+                    type="time"
+                    class="form-control"
+                    name="start_time"
+                    required
+                  />
+                </div>
+
+                <div class="col-6">
+                  <label class="form-label small text-muted"
+                    >Giờ kết thúc</label
+                  >
+                  <input
+                    type="time"
+                    class="form-control"
+                    name="end_time"
+                    required
+                  />
+                </div>
+
+                <!-- Loại OT -->
+                <div class="col-12">
+                  <label class="form-label small text-muted"
+                    >Loại ngày OT</label
+                  >
+                  <select name="ot_type" class="form-select ot-select">
+                    <option value="NORMAL_DAY">Ngày thường</option>
+                    <option value="WEEKEND_DAY">Cuối tuần</option>
+                    <option value="HOLIDAY_DAY">Ngày lễ</option>
+                  </select>
+                </div>
+
+                <!-- Reason -->
+                <div class="col-12">
+                  <label class="form-label small text-muted">Lý do</label>
+                  <textarea
+                    class="form-control"
+                    name="reason"
+                    rows="3"
+                    placeholder="Nhập lý do..."
+                    required
+                  >
+                  </textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 pt-0">
+              <button
+                type="button"
+                class="btn btn-light"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-success">Gửi</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="liveToast"
+        class="toast align-items-center text-white border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body" id="toast-message"></div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./js/constant.js"></script>
+    <script src="./js/menu.js"></script>
+    <script src="./js/shared.js"></script>
+    <script src="./js/ot_request.js"></script>
+  </body>
+</html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./css/variables.css" />
+    <link rel="stylesheet" href="./css/shared.css" />
+    <link rel="stylesheet" href="./css/payroll.css" />
+    <title>Bảng công</title>
+  </head>
+
+  <body>
+    <div class="d-flex">
+      <!-- Header -->
+      <button
+        id="menu-toggle"
+        class="btn d-md-none"
+        style="position: fixed; top: 10px; left: 15px; z-index: 1100"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav id="sidebar-container" class="border-end shadow-sm"></nav>
+      <div id="sidebar-overlay"></div>
+      <!-- Header -->
+
+      <div class="main-wrapper">
+        <header id="header-container"></header>
+        <div class="p-4">
+          <div class="reports-header">
+            <h2 style="color: #262626; margin-bottom: 5px; font-weight: 500">
+              Chốt công & Khóa công
+            </h2>
+            <p style="color: #888; margin-bottom: 20px; font-size: 14px">
+              Hoàn tất bảng công và khóa dữ liệu để tránh thay đổi ngoài ý muốn.
+            </p>
+          </div>
+
+          <div class="table-wrapper card-light">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h3 class="table-title mb-0">Bảng công tháng</h3>
+
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-outline-warning btn-sm btn-lock"
+                  onclick="lockPayrollPeriod()"
+                >
+                  <i class="fa-solid fa-lock me-1"></i> Khóa kỳ công
+                </button>
+                <button
+                  class="btn btn-outline-success btn-sm"
+                  onclick="exportExcel()"
+                >
+                  <i class="fa-solid fa-download me-1"></i> Tải bảng công
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                Hiển thị
+                <select
+                  id="limit-select"
+                  class="form-select form-select-sm d-inline-block"
+                  style="width: 80px"
+                >
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30" selected>30</option>
+                  <option value="50">50</option>
+                </select>
+                dòng
+              </div>
+
+              <div id="pagination-info" class="text-muted small"></div>
+            </div>
+            <div class="table-scroll">
+              <table class="reports-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Mã MV</th>
+                    <th>Tên nhân viên</th>
+                    <th>Email</th>
+                    <th>Mã phòng ban</th>
+                    <th>Kỳ công</th>
+                    <th>Công thực tế</th>
+                    <th>Nợ (phút)</th>
+                    <th>Công tạm tính</th>
+                    <th>Ngày làm</th>
+                    <th>Nghỉ có lương</th>
+                    <th>Nghỉ không lương</th>
+                  </tr>
+                </thead>
+                <tbody id="payroll-tbody">
+                  <tr>
+                    <td colspan="12" class="empty-state-cell">
+                      Đang tải dữ liệu...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-3">
+              <ul class="pagination" id="pagination"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div
+        id="liveToast"
+        class="toast align-items-center text-white border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body" id="toast-message"></div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="cameraModal"
+      tabindex="-1"
+      aria-hidden="true"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xác thực khuôn mặt</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              onclick="stopVideoStream()"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <div
+              class="camera-container"
+              style="
+                background: #000;
+                border-radius: 8px;
+                overflow: hidden;
+                position: relative;
+              "
+            >
+              <video
+                id="video"
+                width="100%"
+                height="auto"
+                autoplay
+                playsinline
+              ></video>
+              <canvas id="canvas" style="display: none"></canvas>
+              <div
+                id="camera-loading"
+                class="position-absolute top-50 start-50 translate-middle text-white"
+              >
+                <div class="spinner-border" role="status"></div>
+              </div>
+            </div>
+            <p class="mt-3 text-muted small">
+              Vui lòng nhìn thẳng vào camera và giữ yên.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              onclick="stopVideoStream()"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="snap"
+              onclick="captureAndSendImage()"
+            >
+              <i class="fa-solid fa-circle-dot me-2"></i>Chụp ảnh & Điểm danh
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="registerFaceModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-user-plus me-2"></i>Đăng ký khuôn mặt mới
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tìm kiếm nhân viên</label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  id="search-employee-input"
+                  class="form-control"
+                  placeholder="Nhập tên hoặc mã NV..."
+                />
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  onclick="searchEmployee()"
+                >
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+              </div>
+            </div>
+
+            <div
+              id="search-results"
+              class="list-group mt-2"
+              style="max-height: 200px; overflow-y: auto"
+            ></div>
+
+            <div
+              id="selected-employee-info"
+              class="mt-3 p-3 border rounded bg-light d-none"
+            >
+              <p class="mb-1">
+                Đang chọn: <strong id="selected-emp-name"></strong>
+              </p>
+              <p class="mb-0 small text-muted">
+                ID: <span id="selected-emp-id"></span>
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              id="btn-start-capture"
+              class="btn btn-primary"
+              disabled
+              onclick="openCameraForRegister()"
+            >
+              Tiếp theo: Chụp ảnh mẫu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./js/constant.js"></script>
+    <script src="./js/menu.js"></script>
+    <script src="./js/shared.js"></script>
+    <script src="./js/payroll.js"></script>
+  </body>
+</html>

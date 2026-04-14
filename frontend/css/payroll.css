@@ -1,0 +1,126 @@
+/* Layout bảng payroll */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.reports-table th,
+.reports-table td {
+    padding: 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Cho phép xuống dòng riêng cột dài */
+.reports-table td:nth-child(3),
+/* tên NV */
+.reports-table td:nth-child(4) {
+    /* email */
+    white-space: normal;
+}
+
+/* Set width từng cột */
+.reports-table th:nth-child(1),
+.reports-table td:nth-child(1) {
+    width: 60px;
+}
+
+/* ID */
+
+.reports-table th:nth-child(2),
+.reports-table td:nth-child(2) {
+    width: 80px;
+}
+
+/* employee_id */
+
+.reports-table th:nth-child(3),
+.reports-table td:nth-child(3) {
+    width: 160px;
+}
+
+/* tên */
+
+.reports-table th:nth-child(4),
+.reports-table td:nth-child(4) {
+    width: 180px;
+}
+
+/* email */
+
+.reports-table th:nth-child(5),
+.reports-table td:nth-child(5) {
+    width: 100px;
+}
+
+/* phòng ban */
+
+.reports-table th:nth-child(6),
+.reports-table td:nth-child(6) {
+    width: 160px;
+}
+
+/* kỳ công */
+
+.reports-table th:nth-child(7),
+.reports-table td:nth-child(7) {
+    width: 120px;
+}
+
+/* công chuẩn */
+
+.reports-table th:nth-child(8),
+.reports-table td:nth-child(8) {
+    width: 100px;
+}
+
+/* thiếu */
+
+.reports-table th:nth-child(9),
+.reports-table td:nth-child(9) {
+    width: 120px;
+}
+
+/* ước tính */
+
+.reports-table th:nth-child(10),
+.reports-table td:nth-child(10) {
+    width: 100px;
+}
+
+/* ngày làm */
+
+.reports-table th:nth-child(11),
+.reports-table td:nth-child(11) {
+    width: 100px;
+}
+
+/* nghỉ phép */
+
+.reports-table th:nth-child(12),
+.reports-table td:nth-child(12) {
+    width: 120px;
+}
+
+/* nghỉ không lương */
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Thanh scroll đẹp hơn */
+.table-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
