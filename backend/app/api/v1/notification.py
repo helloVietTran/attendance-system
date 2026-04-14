@@ -10,17 +10,17 @@ from app.schemas.base import PaginationResponse, ResponseSchema, PaginationMetad
 
 router = APIRouter(prefix="/notifications", tags=["Thông báo"])
 
-@router.get("/{employee_id}", response_model=PaginationResponse[NotificationResponse])
+@router.get("/me", response_model=PaginationResponse[NotificationResponse])
 def get_notifications(
-    employee_id: int,
     month: int = Query(..., ge=1, le=12),
     year: int = Query(default=datetime.now().year),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     items, total, pages = notification_service.get_employee_notifications(
-        db, employee_id, month, year, page, limit
+        db, current_user["id"], month, year, page, limit
     )
 
     return PaginationResponse(

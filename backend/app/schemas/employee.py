@@ -30,6 +30,8 @@ class EmployeeWithShiftResponse(BaseModel):
     full_name: str
     email: str
     department_id: int
+    role: str
+    dob: date
     # Lồng thông tin ca làm vào đây
     shift: Optional[ShiftSimpleResponse]
 

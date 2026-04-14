@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from datetime import datetime, date
 from fastapi import HTTPException
+
+from app.models.shift import Shift
 from app.models.shift_change_request import ShiftChangeRequest, RequestStatus
 from app.models.employee import Employee
 from app.models.notification import Notification
@@ -43,7 +45,7 @@ class ShiftService:
             old_shift_id=obj_in.current_shift_id,
             new_shift_id=obj_in.new_shift_id,
             reason=obj_in.reason,
-            status=RequestStatus.PENDING
+            status=RequestStatus.APPROVED
         )
         db.add(db_obj)
         db.commit()
@@ -103,5 +105,9 @@ class ShiftService:
 
         db.commit()
         return updated_count
+    
+    def get_all_shifts(self, db: Session):
+        """Lấy toàn bộ danh sách ca làm việc đang hoạt động"""
+        return db.query(Shift).filter(Shift.is_active == True).all()
 
 shift_service = ShiftService()

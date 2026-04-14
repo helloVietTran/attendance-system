@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, desc
 from fastapi import HTTPException
 from datetime import datetime
 
@@ -11,8 +11,39 @@ from app.models.vacation import Vacation
 from app.models.absence_tracker import AbsenceTracker
 from app.models.absence_plan import AbsencePlan
 from app.services.calendar_service import calendar_service
+from app.models.employee import Employee
 
 class AbsenceService:
+    def get_my_plans(self, db: Session, emp_id: int, skip: int = 0, limit: int = 100):
+        """Lấy danh sách kế hoạch nghỉ của cá nhân"""
+        return db.query(AbsencePlan)\
+            .filter(AbsencePlan.employee_id == emp_id)\
+            .order_by(desc(AbsencePlan.start_date))\
+            .offset(skip).limit(limit).all()
+
+    def get_all_plans_admin(self, db: Session, status: str = None, search: str = None, skip: int = 0, limit: int = 100):
+        query = db.query(AbsencePlan).join(Employee, AbsencePlan.employee_id == Employee.id)
+        
+        if status:
+            query = query.filter(AbsencePlan.status == status)
+        if search:
+            query = query.filter(Employee.full_name.ilike(f"%{search}%"))
+    
+        total_elements = query.count()
+
+        results = query.add_columns(Employee.full_name)\
+                    .order_by(desc(AbsencePlan.created_at))\
+                    .offset(skip)\
+                    .limit(limit)\
+                    .all()
+        
+        plans = []
+        for plan_obj, full_name in results:
+            plan_obj.employee_name = full_name 
+            plans.append(plan_obj)
+            
+        return plans, total_elements
+    
     def create_absence_plan(self, db: Session, obj_in: AbsencePlanCreate, emp_id: int):
         # Kiểm tra trùng lặp với các kế hoạch đã có (tránh gửi đơn đè nhau)
         overlap = db.query(AbsencePlan).filter(
@@ -159,5 +190,28 @@ class AbsenceService:
                 status_code=500,
                 detail="Có lỗi xảy ra khi xóa dữ liệu."
             )
+            
+    def get_leave_balance(self, db: Session, emp_id: int):
+        tracker = db.query(AbsenceTracker).filter(AbsenceTracker.employee_id == emp_id).first()
+        
+        if not tracker:
+            try:
+                tracker = AbsenceTracker(
+                    employee_id=emp_id,
+                    current_year_total=14,
+                    current_year_used=0,
+                    carried_over_from_last_year=0,
+                    carried_over_used=0
+                )
+                db.add(tracker)
+                db.commit()
+                db.refresh(tracker)
+            except Exception as e:
+                db.rollback()
+                raise HTTPException(status_code=400, detail="Không thể khởi tạo quỹ phép cho nhân viên này")
+
+        tracker.total_remaining = tracker.total_remaining_leave
+        
+        return tracker
 
 absence_service = AbsenceService()

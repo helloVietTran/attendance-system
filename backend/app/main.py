@@ -15,6 +15,7 @@ from app.api.v1.payroll import router as payroll_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.overtime import router as overtime_router
 from app.api.v1.face_auth import router as face_auth_router
+from app.api.v1.statistic import router as statistic_router
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from app.core.exception import http_exception_handler, validation_exception_handler
@@ -30,7 +31,7 @@ from app.core.scheduler import start_scheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    init_db() # for dev only
 
     db = SessionLocal()
     try:
@@ -80,3 +81,4 @@ app.include_router(payroll_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1" )
 app.include_router(overtime_router, prefix="/api/v1")
 app.include_router(face_auth_router, prefix="/api/v1")
+app.include_router(statistic_router, prefix="/api/v1")
