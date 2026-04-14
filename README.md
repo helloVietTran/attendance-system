@@ -1,13 +1,15 @@
 # 📋 Hệ Thống Tính công ( Không bao gồm nghiệp vụ tính lương)
-
 Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm công qua nhận dạng khuôn mặt, quản lý giờ làm thêm, tính công số, và báo cáo, tuân thủ lao động theo quy định Việt Nam.
 
 ---
 
 **Contributors**:
-- Trần Việt Anh (Leader) - Backend + Devops
-- Nguyễn Quang Huy - Frontend
+- Trần Việt Anh (Leader) - Backend + BA
+- Trịnh Đắc Vụ - Devops
+- Nguyễn Quang Huy - Frontend + BA
 - Nguyễn Viết Bình Dương - Tester
+
+> Thời gian: 15/2/2026 - 15/4/2026
 
 ## ⚖️ Business Logic
 
@@ -44,7 +46,10 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 
 ### 6. Thống kê
 
-- Thống kê nhân viên chăm chỉ để phục vụ trao giải, thống kê thâm niên lao động, thống kê nghỉ không phép, ...
+- Thống kê nhân viên chăm chỉ để phục vụ trao giải, thống kê đi muộn/về sớm, ...
+
+## Tài liệu: 
+`Link tài liệu `: https://drive.google.com/drive/folders/1r73PrdrbW8qOGboR3U7YgjpPmCUKjR-B?usp=drive_link
 
 ## Yêu cầu phi chức năng
 - Dữ liệu phải có độ tin cậy cao, dù nhân viên có yêu cầu sửa công được chấp nhận thì log ngày hôm đó vẫn được giữ nguyên
@@ -52,7 +57,7 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 - Nhân viên có quyền phù hợp, idempotency
 - Phát hiện bất thường: ở lại công ty quá muộn, nghỉ liên tục nhiều ngày, ...
 
-## Các Tính Năng Chính
+## Yêu cầu chức năng
 
 ### 1. **Chấm Công & Điểm Danh**
 - Chấm công qua nhận dạng khuôn mặt (Face Recognition)
@@ -75,10 +80,10 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 - Quản lý ngày nghỉ không lương
 - Theo dõi hành động của nhân viên
 
-### 5. **Tính Lương & Báo Cáo**
-- Tính lương tự động dựa trên log chấm công
+### 5. **Tính công & Báo cáo**
+- Tính công tự động dựa trên log chấm công
 - Báo cáo công chi tiết
-- Xuất báo cáo PDF/Excel
+- Xuất báo cáo ra Excel
 - Theo dõi phúc lợi nhân viên
 
 ### 6. **Quản Lý Hệ Thống**
@@ -110,9 +115,28 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 | **AWS** | Cloud |
 | **Docker**  | Phát triển và deploy dễ dàng hơn |
 
+### 4. Tester
+
+| Công Nghệ | Mục Đích |
+|-----------|---------|
+| **Playwright**  | Viết automation test|
 
 ---
 
+## Demo bằng hình ảnh
+
+Các hình ảnh dưới đây minh họa các trang chính của hệ thống và trải nghiệm người dùng.
+
+<div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+  <img src="demo/demo-1.png" alt="Demo 1" style="width:500px; max-width:100%; height:auto;" />
+  <img src="demo/demo-2.png" alt="Demo 2" style="width:500px; max-width:100%; height:auto;" />
+  <img src="demo/demo-3.png" alt="Demo 3" style="width:500px; max-width:100%; height:auto;" />
+  <img src="demo/demo-4.png" alt="Demo 4" style="width:500px; max-width:100%; height:auto;" />
+  <img src="demo/demo-5.png" alt="Demo 5" style="width:500px; max-width:100%; height:auto;" />
+  <img src="demo/demo-6.png" alt="Demo 6" style="width:500px; max-width:100%; height:auto;" />
+</div>
+
+---
 
 ## 📞 Support & Contact
 

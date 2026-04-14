@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="./css/variables.css" />
     <link rel="stylesheet" href="./css/shared.css" />
     <link rel="stylesheet" href="./css/statistic.css" />
+    <link rel="icon" type="image/x-icon" href="./assest/favicon.svg" />
     <title>Thống kê</title>
   </head>
 
@@ -34,6 +35,14 @@
       <div class="main-wrapper">
         <header id="header-container"></header>
         <div class="p-4">
+          <div class="reports-header">
+            <h2 style="color: #262626; margin-bottom: 5px; font-weight: 500">
+              Thống kê
+            </h2>
+            <p style="color: #888; margin-bottom: 20px; font-size: 14px">
+              Cung cấp các thống kê cho người quản lý
+            </p>
+          </div>
           <div class="row g-4">
             <!-- Bộ lọc -->
             <div class="col-12 d-flex justify-content-end">
@@ -44,23 +53,6 @@
               ></select>
             </div>
 
-            <!-- Biểu đồ -->
-            <div class="col-12 d-flex justify-content-center">
-              <div
-                class="card stat-card text-center"
-                style="max-width: 400px; width: 100%"
-              >
-                <div class="card-header">
-                  <h6>
-                    <i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tỷ lệ
-                    chấm công
-                  </h6>
-                </div>
-                <div class="card-body">
-                  <canvas id="ratioChart"></canvas>
-                </div>
-              </div>
-            </div>
             <!-- Top chăm chỉ -->
             <div class="col-lg-6">
               <div class="card stat-card h-100">
@@ -78,6 +70,24 @@
                   <h6>Top nhân viên ở lại muộn nhất</h6>
                 </div>
                 <div class="card-body" id="top-late">Đang tải...</div>
+              </div>
+            </div>
+
+            <!-- Biểu đồ -->
+            <div class="col-12 d-flex justify-content-center">
+              <div
+                class="card stat-card text-center"
+                style="max-width: 400px; width: 100%"
+              >
+                <div class="card-header">
+                  <h6>
+                    <i class="fa-solid fa-chart-pie me-2 text-primary"></i>Tỷ lệ
+                    chấm công
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <canvas id="ratioChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
