@@ -1,4 +1,4 @@
-# 📋 Hệ Thống Tính công ( Không bao gồm nghiệp vụ tính lương)
+# 📋 Hệ Thống Tính công
 Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm công qua nhận dạng khuôn mặt, quản lý giờ làm thêm, tính công số, và báo cáo, tuân thủ lao động theo quy định Việt Nam.
 
 ---
@@ -9,11 +9,9 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 - Nguyễn Quang Huy - Frontend + BA
 - Nguyễn Viết Bình Dương - Tester
 
-> Thời gian: 15/2/2026 - 15/4/2026
-
 ## ⚖️ Business Logic
 
-### 1. Chấm công & Chốt công
+### 1. Chấm công & Chốt công (Không bao gồm nghiệp vụ tính lương)
 
 - Hệ thống cho phép chấm công bằng cách nhận diện khuôn mặt.
 
