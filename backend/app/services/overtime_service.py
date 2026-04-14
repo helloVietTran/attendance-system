@@ -17,6 +17,7 @@ from app.models.shift import Shift
 from app.core.config import OVER_TIME_MONTHLY_LIMIT_MINS, OVER_TIME_YEARLY_LIMIT_MINS, OVERTIME_DAILY_LIMIT_MINS
 from app.models.attendance_log import AttendanceLog
 from app.services.calendar_service import calendar_service
+from app.models.daily_work_report import DailyWorkReport
 
 class OvertimeService:
     def create_request(self, db: Session, obj_in: OvertimeCreate, emp_id: int):
@@ -177,47 +178,59 @@ class OvertimeService:
         return t.hour * 60 + t.minute
 
     def calculate_actual_ot_minutes(self, db: Session, ot_id: int):
-        """
-        Duyệt đơn OT và tính toán số phút thực tế dựa trên Attendance Log
-        """
         ot_req = db.query(OvertimeRequest).filter(OvertimeRequest.id == ot_id).first()
         if not ot_req:
             return None
 
-        # lấy log đầu và cuối của nhân viên trong ngày đó
-        logs = db.query(AttendanceLog).filter(
-            AttendanceLog.employee_id == ot_req.employee_id,
-            AttendanceLog.log_date == ot_req.work_date
-        ).order_by(AttendanceLog.checked_time.asc()).all()
-
-        if not logs:
-            ot_req.actual_work_time = 0
-            db.commit()
-            return 0
-
-        first_log_min = self._time_to_minutes(logs[0].checked_time)
-        last_log_min = self._time_to_minutes(logs[-1].checked_time)
-        total_presence_min = last_log_min - first_log_min
-
-        working_days = calendar_service.get_working_days_list(db, ot_req.work_date, ot_req.work_date)
+        working_days = calendar_service.get_working_days_list(
+            db, ot_req.work_date, ot_req.work_date
+        )
         is_working_day = len(working_days) > 0
 
+        registered_min = (
+            self._time_to_minutes(ot_req.end_time)
+            - self._time_to_minutes(ot_req.start_time)
+        )
+
         actual_ot = 0
-        lunch_break = 60
+
         if is_working_day:
-            # Ngày đi làm: Lấy tổng thời gian - 480p hành chính - 60p nghỉ trưa
-           
-            standard_work = 480
-            actual_ot = total_presence_min - standard_work - lunch_break
+            # Nếu hôm đó làm việc, lấy ot từ DailyWorkReport
+            report = db.query(DailyWorkReport).filter(
+                DailyWorkReport.employee_id == ot_req.employee_id,
+                DailyWorkReport.work_date == ot_req.work_date
+            ).first()
+
+            if report:
+                actual_ot = report.overtime_minutes or 0
+            else:
+                actual_ot = 0
+
         else:
+            # nếu hôm đó không làm việc, tính từ log điểm danh
+            logs = db.query(AttendanceLog).filter(
+                AttendanceLog.employee_id == ot_req.employee_id,
+                AttendanceLog.log_date == ot_req.work_date
+            ).order_by(AttendanceLog.checked_time.asc()).all()
+
+            if not logs:
+                ot_req.actual_work_time = 0
+                db.commit()
+                return 0
+
+            first_log_min = self._time_to_minutes(logs[0].checked_time)
+            last_log_min = self._time_to_minutes(logs[-1].checked_time)
+
+            total_presence_min = last_log_min - first_log_min
+
+            lunch_break = 60
             actual_ot = total_presence_min - lunch_break
 
-        registered_min = self._time_to_minutes(ot_req.end_time) - self._time_to_minutes(ot_req.start_time)
-        
         final_ot_min = max(0, min(actual_ot, registered_min))
-        
+
         ot_req.actual_work_time = final_ot_min
         db.commit()
+
         return final_ot_min
 
     def batch_process_actual_ot(self, db: Session, target_date: date):

@@ -126,12 +126,17 @@ function submitFixRequest() {
 
             $('button[onclick="submitFixRequest()"]').prop('disabled', true).text('Đang gửi...');
         },
-        success: function (res) {
+        success: async function (res) {
             showToast("Gửi yêu cầu thành công!", "success");
             const modalElement = document.getElementById('fixAttendanceModal');
             bootstrap.Modal.getInstance(modalElement).hide();
             // Reset form
             $('#modal-reason').val('');
+            const month = $('#report-month').val();
+            const year = $('#report-year').val();
+
+            await fetchMyFixRequests(month, year);
+            await fetchAndRenderReports(month, year);
         },
         error: function (xhr) {
             const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Không thể gửi yêu cầu";
