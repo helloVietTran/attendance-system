@@ -13,7 +13,7 @@ class CorrectionCreate(BaseModel):
 class CorrectionResponse(BaseModel):
     id: int
     employee_id: int
-    employee_name: Optional[str]
+    employee_name: Optional[str] = None
     work_date: date
     status: ApprovalStatus
     reason: str
