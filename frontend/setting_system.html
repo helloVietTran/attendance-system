@@ -1,109 +1,115 @@
 <!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="./css/variables.css" />
     <link rel="stylesheet" href="./css/shared.css" />
     <link rel="stylesheet" href="./css/Setting_System.css" />
 
     <title>Cài đặt hệ thống</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="d-flex">
-        <nav id="sidebar-container" class="border-end shadow-sm"></nav>
+      <!-- Header -->
+      <button
+        id="menu-toggle"
+        class="btn d-md-none"
+        style="position: fixed; top: 10px; left: 15px; z-index: 1100"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav id="sidebar-container" class="border-end shadow-sm"></nav>
+      <div id="sidebar-overlay"></div>
+      <!-- Header -->
 
-        <div class="main-wrapper">
-            <header id="header-container" style="color: #737373; position: sticky; top: 0; z-index: 100">
-                <div style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              height: 100%;
-              padding: 0 20px;
-            ">
-                    <div class="search-bar"></div>
-                    <div class="user-profile" style="display: flex; align-items: center; gap: 15px">
-                        <div id="user-name-badge" style="
-                  background-color: #ff9800;
-                  color: #fff;
-                  width: 35px;
-                  height: 35px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  border-radius: 4px;
-                  font-weight: bold;
-                  text-transform: uppercase;
-                ">
-                            U
-                        </div>
-                        <span id="user-email-display" style="font-size: 14px; font-weight: 500">---</span>
-                        <button onclick="logout()" class="btn btn-link btn-logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-                        </button>
-                    </div>
-                </div>
-            </header>
+      <div class="main-wrapper">
+        <header id="header-container"></header>
 
-            <div class="reports-container p-4">
-                <div class="reports-header">
-                    <h2 style="color: #262626; margin-bottom: 5px; font-weight: 600">
-                        <i class="fa-solid fa-sliders" style="margin-right: 10px; color: #007bff"></i>Cài Đặt Hệ Thống
-                    </h2>
-                    <p style="color: #888; margin-bottom: 20px; font-size: 14px">
-                        Quản lý các thông số cơ bản của hệ thống quản lý chấm công
-                    </p>
-                </div>
+        <div class="reports-container p-4">
+          <div class="reports-header">
+            <h2 style="color: #262626; margin-bottom: 5px; font-weight: 600">
+              <i
+                class="fa-solid fa-sliders"
+                style="margin-right: 10px; color: #007bff"
+              ></i
+              >Cài Đặt Hệ Thống
+            </h2>
+            <p style="color: #888; margin-bottom: 20px; font-size: 14px">
+              Quản lý các thông số cơ bản của hệ thống quản lý chấm công
+            </p>
+          </div>
 
-                <!-- Alert Container -->
-                <div id="alert-container" style="margin-bottom: 20px"></div>
+          <!-- Alert Container -->
+          <div id="alert-container" style="margin-bottom: 20px"></div>
 
-                <!-- Settings Form -->
-                <div class="settings-form" id="settings-form">
-                    <div id="settings-container" style="display: grid; gap: 20px">
-                        <div class="text-center" style="padding: 40px; color: #999">
-                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px"></i>
-                            <p style="margin-top: 10px">Đang tải cài đặt...</p>
-                        </div>
-                    </div>
+          <!-- Settings Form -->
+          <div class="settings-form" id="settings-form">
+            <div id="settings-container" style="display: grid; gap: 20px">
+              <div class="text-center" style="padding: 40px; color: #999">
+                <i
+                  class="fa-solid fa-spinner fa-spin"
+                  style="font-size: 24px"
+                ></i>
+                <p style="margin-top: 10px">Đang tải cài đặt...</p>
+              </div>
+            </div>
 
-                    <!-- Action Buttons -->
-                    <div style="
+            <!-- Action Buttons -->
+            <div
+              style="
                 display: flex;
                 gap: 10px;
                 margin-top: 30px;
                 padding-top: 20px;
                 border-top: 1px solid #f0f0f0;
-              ">
-                        <button id="save-settings-btn" class="btn-primary">
-                            <i class="fa-solid fa-save"></i> Lưu thay đổi
-                        </button>
-                        <button id="reset-settings-btn" class="btn-reset">
-                            <i class="fa-solid fa-rotate-left"></i> Hủy thay đổi
-                        </button>
-                    </div>
-                </div>
+              "
+            >
+              <button id="save-settings-btn" class="btn-primary">
+                <i class="fa-solid fa-save"></i> Lưu thay đổi
+              </button>
+              <button id="reset-settings-btn" class="btn-reset">
+                <i class="fa-solid fa-rotate-left"></i> Hủy thay đổi
+              </button>
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fa-solid fa-check-circle me-2"></i>
-                    <span id="toast-message">Gửi yêu cầu thành công!</span>
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      style="z-index: 1100"
+    >
+      <div
+        id="liveToast"
+        class="toast align-items-center text-white bg-success border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="fa-solid fa-check-circle me-2"></i>
+            <span id="toast-message">Gửi yêu cầu thành công!</span>
+          </div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
         </div>
+      </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -112,6 +118,5 @@
     <script src="./js/shared.js"></script>
     <script src="./js/menu.js"></script>
     <script src="./js/Setting_System.js"></script>
-</body>
-
+  </body>
 </html>
