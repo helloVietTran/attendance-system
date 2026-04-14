@@ -2,6 +2,7 @@ let currentPage = 1;
 let currentLimit = 30;
 
 $(document).ready(function () {
+    checkAuthAndGetUser();
     loadPayrollData();
     checkPayrollPeriodStatus();
 

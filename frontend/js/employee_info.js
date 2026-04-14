@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    checkAuthAndGetUser();
     loadEmployeeProfile();
     loadShifts();
     initHeatmapFilters();

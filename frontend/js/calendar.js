@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const userRole = localStorage.getItem('user')?.role || 'admin';
+    checkAuthAndGetUser();
+
+    const userRole = JSON.parse(localStorage.getItem('user'))?.role;
     const calendarEl = document.getElementById('calendar');
     const vModal = new bootstrap.Modal(document.getElementById('vacationModal'));
     const cModal = new bootstrap.Modal(document.getElementById('compensationModal'));

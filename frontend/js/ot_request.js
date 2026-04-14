@@ -1,22 +1,17 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-    // const userRole = localStorage.getItem("user")?.role; 
-
-    // const adminRoles = ["ADMIN", "HR"];
-
-    // if (adminRoles.includes(userRole)) {
-    //     const adminTab = document.getElementById("admin-ot-tab-item");
-    //     if (adminTab) {
-    //         adminTab.classList.remove("d-none");
-    //     }
-    // }
-    const adminTab = document.getElementById("admin-ot-tab-item");
-    adminTab.classList.remove("d-none");
-});
-
-
 $(document).ready(function () {
+    checkAuthAndGetUser();
     loadMyOTRequests();
+
+    const userRole = JSON.parse(localStorage.getItem("user"))?.role;
+
+    const adminRoles = ["admin", "hr"];
+
+    if (adminRoles.includes(userRole)) {
+        const adminTab = document.getElementById("admin-ot-tab-item");
+        if (adminTab) {
+            adminTab.classList.remove("d-none");
+        }
+    }
 
     $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const targetId = $(e.target).attr('data-bs-target');

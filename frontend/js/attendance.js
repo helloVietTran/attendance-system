@@ -1,5 +1,6 @@
 // Initialize the page when document is ready
 $(document).ready(function () {
+    checkAuthAndGetUser();
     checkFaceRegistrationPermission();
     loadAttendanceLogs();
 

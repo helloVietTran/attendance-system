@@ -26,6 +26,7 @@ const settingDescriptions = {
 };
 
 document.addEventListener('DOMContentLoaded', async function () {
+    await checkAuthAndGetUser();
     await initSettingsPage();
 });
 
