@@ -7,9 +7,15 @@ $(document).ready(function () {
     const adminRoles = ["admin", "hr"];
 
     if (adminRoles.includes(userRole)) {
-        const adminTab = document.getElementById("admin-ot-tab-item");
-        if (adminTab) {
-            adminTab.classList.remove("d-none");
+        // Hiển thị tab Quản lý OT
+        const adminOTTab = document.getElementById("admin-ot-tab-item");
+        if (adminOTTab) {
+            adminOTTab.classList.remove("d-none");
+        }
+
+        const adminCorrectionTab = document.getElementById("admin-correction-tab-item");
+        if (adminCorrectionTab) {
+            adminCorrectionTab.classList.remove("d-none");
         }
     }
 
@@ -23,6 +29,8 @@ $(document).ready(function () {
         else if (targetId === '#manage-request') {
             // Nếu nhấn sang tab "Quản lý" -> Tải danh sách toàn bộ (Admin/HR)
             loadAdminOTRequests(1);
+        } else if (targetId === '#manage-correction') {
+            loadAdminCorrectionRequests();
         }
     });
 
@@ -349,4 +357,134 @@ function exportOTExcel() {
             a.remove();
         })
         .catch(error => displayToast(error.message, "danger"));
+}
+
+/**
+ * Tải danh sách yêu cầu sửa công dành cho Admin
+ */
+function loadAdminCorrectionRequests(page = 1) {
+    const search = $('#adminCorrectionSearchName').val();
+    const status = $('#adminCorrectionFilterStatus').val();
+    const month = $('#adminCorrectionFilterMonth').val() || (new Date().getMonth() + 1);
+    const year = new Date().getFullYear();
+
+    const tbody = $('#admin-correction-tbody');
+    tbody.html('<tr><td colspan="7" class="text-center">Đang tải dữ liệu...</td></tr>');
+
+    $.ajax({
+        url: `/fix-attendance-requests/all`,
+        type: 'GET',
+        data: {
+            page: page,
+            limit: 10,
+            search: search,
+            status: status,
+            month: month,
+            year: year
+        },
+        success: function (response) {
+            if (response.status === 1000) {
+                renderAdminCorrectionTable(response.data);
+                renderPagination(response.pagination, 'admin-correction-pagination', loadAdminCorrectionRequests);
+            }
+        },
+        error: function () {
+            tbody.html('<tr><td colspan="7" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>');
+        }
+    });
+}
+
+/**
+ * Render dữ liệu vào bảng sửa công
+ */
+function renderAdminCorrectionTable(data) {
+    const tbody = $('#admin-correction-tbody');
+    console.log(data);
+    if (!data || data.length === 0) {
+        tbody.html('<tr><td colspan="7" class="text-center">Không có yêu cầu sửa công nào.</td></tr>');
+        return;
+    }
+
+    const rows = data.map(item => {
+        const isPending = item.status === 'pending';
+
+        return `
+            <tr>
+                <td>
+                    <div class="fw-bold">${item.employee_name}</div>
+                    <small class="text-muted">ID: ${item.employee_id}</small>
+                </td>
+                <td><span class="fw-medium">${item.work_date}</span></td>
+            
+                <td>
+                    <div class="text-truncate" style="max-width: 150px;" title="${item.reason}">
+                        ${item.reason}
+                    </div>
+                </td>
+                <td>${getStatusBadge(item.status)}</td>
+                <td class="text-center">
+                    ${isPending ? `
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-success" onclick="approveCorrection(${item.id})" title="Duyệt">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="rejectCorrection(${item.id})" title="Từ chối">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    ` : `<i class="fa-solid fa-lock text-muted" title="Đã xử lý"></i>`}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    tbody.html(rows);
+}
+
+/**
+ * Duyệt yêu cầu sửa công
+ */
+function approveCorrection(id) {
+    if (!confirm("Bạn có chắc chắn muốn duyệt yêu cầu sửa công này?")) return;
+
+    $.ajax({
+        url: `/fix-attendance-requests/${id}/status?status=approved`,
+        type: 'PUT',
+        success: function (res) {
+            showToast("Đã duyệt yêu cầu sửa công!", "success");
+            loadAdminCorrectionRequests();
+        },
+        error: function (xhr) {
+            let errorMsg = "Không thể gửi yêu cầu";
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            showToast(errorMsg, "danger");
+        }
+    });
+}
+
+/**
+ * Từ chối yêu cầu sửa công
+ */
+function rejectCorrection(id) {
+    if (!confirm("Bạn có chắc chắn muốn TỪ CHỐI yêu cầu này?")) return;
+
+    $.ajax({
+        url: `/fix-attendance-requests/${id}/status?status=rejected`,
+        type: 'PUT',
+        success: function (res) {
+            showToast("Đã từ chối yêu cầu thành công", "info");
+            loadAdminCorrectionRequests(); // Load lại bảng
+        },
+        error: function (xhr) {
+            let errorMsg = "Không thể gửi yêu cầu";
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            showToast(errorMsg, "danger");
+        }
+    });
 }

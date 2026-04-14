@@ -50,7 +50,7 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 
 ## Tài liệu: 
 `Link tài liệu `: https://drive.google.com/drive/folders/1r73PrdrbW8qOGboR3U7YgjpPmCUKjR-B?usp=drive_link
-`Defect log`: <a src="https://humgedu-my.sharepoint.com/:x:/g/personal/2221050047_student_humg_edu_vn/IQBMpk5FZKVCQ7DmC_SdBLYVAXV7IRQf4RxqRwy3sfrNlkg?e=SNZd72">Here</a>
+`Defect log`: <a href="https://humgedu-my.sharepoint.com/:x:/g/personal/2221050047_student_humg_edu_vn/IQBMpk5FZKVCQ7DmC_SdBLYVAXV7IRQf4RxqRwy3sfrNlkg?e=SNZd72">Here</a>
 
 ## Yêu cầu phi chức năng
 - Dữ liệu phải có độ tin cậy cao, dù nhân viên có yêu cầu sửa công được chấp nhận thì log ngày hôm đó vẫn được giữ nguyên
