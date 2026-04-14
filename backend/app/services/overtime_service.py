@@ -1,7 +1,13 @@
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, aliased
 from fastapi import HTTPException
 from datetime import date, datetime
+from typing import Optional
 from sqlalchemy import extract, func
+from math import ceil
+from io import BytesIO
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+import pandas as pd
 
 from app.models.overtime_request import OvertimeRequest
 from app.models.absence import ApprovalStatus
@@ -82,6 +88,61 @@ class OvertimeService:
         db.refresh(db_obj)
         return db_obj
 
+    def get_my_requests(
+        self, 
+        db: Session, 
+        emp_id: int, 
+        month: Optional[int] = None, 
+        year: Optional[int] = None
+    ):
+        query = db.query(OvertimeRequest).filter(OvertimeRequest.employee_id == emp_id)
+        
+        if month:
+            query = query.filter(extract('month', OvertimeRequest.work_date) == month)
+        if year:
+            query = query.filter(extract('year', OvertimeRequest.work_date) == year)
+            
+        return query.order_by(OvertimeRequest.work_date.desc()).all()
+    
+    def get_all_requests_admin(self, db: Session, month: int, year: int, page: int, limit: int, status: str = None, search: str = None):
+        query = db.query(OvertimeRequest).join(
+                Employee, OvertimeRequest.employee_id == Employee.id
+            ).add_columns(Employee.full_name.label("employee_name"))
+        
+        query = query.filter(extract('month', OvertimeRequest.work_date) == month)
+        query = query.filter(extract('year', OvertimeRequest.work_date) == year)
+
+        if status:
+            query = query.filter(OvertimeRequest.status == status)
+
+        if search:
+            query = query.filter(Employee.id == search)
+
+        total_elements = query.count()
+        offset = (page - 1) * limit
+        raw_results = query.order_by(
+            OvertimeRequest.status == 'PENDING', 
+            OvertimeRequest.created_at.desc()
+            ).offset(offset).limit(limit).all()
+
+        final_results = []
+        for row in raw_results:
+
+            obj = row[0] 
+            emp_name = row[1] 
+            
+            obj.employee_name = emp_name 
+            final_results.append(obj)
+
+        total_pages = ceil(total_elements / limit) if total_elements > 0 else 0
+            
+        return final_results, {
+            "total_elements": total_elements, 
+            "total_pages": total_pages, 
+            "page": page, 
+            "limit": limit
+        }
+    
     def delete_pending_request(self, db: Session, ot_id: int, emp_id: int):
         db_obj = db.query(OvertimeRequest).filter(
             OvertimeRequest.id == ot_id,
@@ -172,5 +233,90 @@ class OvertimeService:
             self.calculate_actual_ot_minutes(db, req.id)
         
         return len(requests)
+    
+    def export_overtime_excel(self, db: Session, month: int = None, year: int = None):
+        # Tạo alias để join bảng nhân viên 2 lần
+        Requester = aliased(Employee)
+        Approver = aliased(Employee)
+
+        query = db.query(
+            OvertimeRequest,
+            Requester.full_name.label("employee_name"),
+            Approver.full_name.label("approver_name")
+        ).join(Requester, OvertimeRequest.employee_id == Requester.id)\
+         .outerjoin(Approver, OvertimeRequest.approved_by == Approver.id) # Dùng outerjoin vì đơn PENDING chưa có người duyệt
+
+        if month and year:
+            query = query.filter(
+                extract('month', OvertimeRequest.work_date) == month,
+                extract('year', OvertimeRequest.work_date) == year
+            )
+
+        results = query.all()
+
+        data_list = []
+        for ot, emp_name, admin_name in results:
+            data_list.append({
+                "Ngày làm": ot.work_date,
+                "Mã NV": ot.employee_id,
+                "Tên nhân viên": emp_name,
+                "Bắt đầu": ot.start_time.strftime("%H:%M") if ot.start_time else "",
+                "Kết thúc": ot.end_time.strftime("%H:%M") if ot.end_time else "",
+                "Công thực tế (phút)": ot.actual_work_time or 0,
+                "Loại OT": ot.ot_type.value if hasattr(ot.ot_type, 'value') else ot.ot_type,
+                "Hệ số": ot.multiplier,
+                "Trạng thái": ot.status.value if hasattr(ot.status, 'value') else ot.status,
+                "Lý do": ot.reason,
+                "Người duyệt": admin_name or "---"
+            })
+
+        df = pd.DataFrame(data_list)
+        output = BytesIO()
+
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            sheet_name = 'Danh sách OT'
+            df.to_excel(writer, index=False, sheet_name=sheet_name)
+
+            workbook = writer.book
+            worksheet = writer.sheets[sheet_name]
+
+            # --- Apply Styles ---
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            center_align = Alignment(horizontal="center", vertical="center")
+
+            # Style cho Header
+            for col_num, column in enumerate(df.columns, 1):
+                cell = worksheet.cell(row=1, column=col_num)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_align
+
+            # Auto-width và Center Align cho dữ liệu
+            for col in worksheet.columns:
+                max_length = 0
+                col_letter = get_column_letter(col[0].column)
+
+                for cell in col:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                    
+                    # Căn giữa số và dữ liệu chung
+                    cell.alignment = center_align
+                
+                worksheet.column_dimensions[col_letter].width = max_length + 4
+
+            # Style đặc biệt: Highlight màu đỏ nếu trạng thái là REJECTED
+            status_col_index = list(df.columns).index("Trạng thái") + 1
+            for row in range(2, len(df) + 2):
+                cell = worksheet.cell(row=row, column=status_col_index)
+                if cell.value == "REJECTED" or cell.value == "rejected":
+                    cell.font = Font(color="FF0000", bold=True)
+                elif cell.value == "APPROVED" or cell.value == "approved":
+                    cell.font = Font(color="28a745", bold=True)
+
+        output.seek(0)
+        file_name = f"Bao_cao_OT_{month}_{year}.xlsx"
+        return output, file_name
 
 overtime_service = OvertimeService()

@@ -25,13 +25,18 @@ class OvertimeUpdate(BaseModel):
 class OvertimeApprove(BaseModel):
     status: ApprovalStatus # APPROVED hoặc REJECTED
 
-class OvertimeResponse(OvertimeBase):
+class OvertimeResponse(BaseModel):
     id: int
-    employee_id: int
+    work_date: date
+    start_time: time
+    end_time: time
+    actual_work_time: Optional[int] = None
+    ot_type: OTType
     multiplier: float
     status: ApprovalStatus
-    approved_by: Optional[int] = None
-    approved_at: Optional[datetime] = None
+    reason: Optional[str] = None
     created_at: datetime
+    employee_name: Optional[str] = None
+    employee_id: Optional[int]
 
     model_config = ConfigDict(from_attributes=True)

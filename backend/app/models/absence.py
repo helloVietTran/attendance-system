@@ -42,3 +42,5 @@ class Absence(Base):
 
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     employee = relationship("Employee", back_populates="absences")
+    
+    absence_type = Column(Enum(AbsenceType), index=True)

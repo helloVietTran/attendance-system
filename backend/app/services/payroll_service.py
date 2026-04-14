@@ -5,6 +5,10 @@ from sqlalchemy import func
 from fastapi import HTTPException
 from datetime import datetime
 from typing import List, Dict
+import pandas as pd
+from io import BytesIO
+from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
 
 from app.models.employee import Employee
 from app.models.daily_work_report import DailyWorkReport
@@ -271,5 +275,133 @@ class PayrollService:
 
         db.commit()
         return existing_period or new_control
+    
+    def get_monthly_reports(self, db: Session, page: int = 1, limit: int = 30, employee_name: str = None):
+        query = db.query(
+            MonthlyWorkReport,
+            Employee.full_name.label("employee_name"),
+            Employee.department_id,
+            Employee.email
+        ).join(Employee, MonthlyWorkReport.employee_id == Employee.id)
+
+        if employee_name:
+            query = query.filter(Employee.full_name.ilike(f"%{employee_name}%"))
+
+        total_elements = query.count()
+        offset = (page - 1) * limit
+        results = query.offset(offset).limit(limit).all()
+
+        final_data = []
+        for row in results:
+            report = row[0]  # Lấy object MonthlyWorkReport
+            
+            report.employee_name = row[1]
+            report.department_id = row[2]
+            report.email = row[3]
+            
+            final_data.append(report)
+
+        return {
+            "data": final_data,
+            "pagination": {
+                "total_elements": total_elements,
+                "total_pages": (total_elements + limit - 1) // limit,
+                "page": page,
+                "limit": limit
+            }
+        }
+        
+    def get_timesheet_period(self, db: Session, month: int, year: int):
+        """
+        Lấy thông tin kỳ chốt công dựa trên tháng và năm
+        """
+        period = db.query(TimesheetPeriodControl).filter(
+            TimesheetPeriodControl.month == month,
+            TimesheetPeriodControl.year == year
+        ).first()
+        
+        return period
+    
+    def export_payroll_excel(self, db: Session, month: int = None, year: int = None):
+
+        query = db.query(
+            MonthlyWorkReport,
+            Employee.full_name,
+            Employee.email,
+            Employee.department_id
+        ).join(Employee, MonthlyWorkReport.employee_id == Employee.id)
+
+        if month and year:
+            from sqlalchemy import extract
+            query = query.filter(
+                extract('month', MonthlyWorkReport.period_start) == month,
+                extract('year', MonthlyWorkReport.period_start) == year
+            )
+
+        results = query.all()
+
+        data_list = []
+        for report, name, email, dept_id in results:
+            data_list.append({
+                "ID": report.id,
+                "Mã NV": report.employee_id,
+                "Tên nhân viên": name,
+                "Email": email,
+                "Phòng ban": dept_id,
+                "Kỳ công": f"{report.period_start} - {report.period_end}",
+                "Công thực tế (giờ)": round(report.standard_work_minutes / 60, 2),
+                "Nợ (phút)": report.lack_minutes,
+                "Công tạm tính (giờ)": round(report.estimated_minutes / 60, 2),
+                "Ngày làm": report.actual_work_days,
+                "Nghỉ có lương": report.paid_leave_days,
+                "Nghỉ không lương": report.unpaid_leave_days
+            })
+
+        df = pd.DataFrame(data_list)
+
+        output = BytesIO()
+
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Bảng công')
+
+            workbook = writer.book
+            worksheet = writer.sheets['Bảng công']
+
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            center_align = Alignment(horizontal="center", vertical="center")
+
+            for col_num, column in enumerate(df.columns, 1):
+                cell = worksheet.cell(row=1, column=col_num)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_align
+
+            for col in worksheet.columns:
+                max_length = 0
+                col_letter = get_column_letter(col[0].column)
+
+                for cell in col:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                    # căn giữa số
+                    if isinstance(cell.value, (int, float)):
+                        cell.alignment = center_align
+
+                worksheet.column_dimensions[col_letter].width = max_length + 2
+
+            debt_col_index = list(df.columns).index("Nợ (phút)") + 1
+
+            for row in range(2, len(df) + 2):
+                cell = worksheet.cell(row=row, column=debt_col_index)
+                if cell.value and cell.value > 0:
+                    cell.font = Font(color="FF0000", bold=True)
+
+        output.seek(0)
+
+        file_name = f"Bang_cong_{month}-{year}.xlsx" if month and year else "Bang_cong.xlsx"
+
+        return output, file_name
 
 payroll_service = PayrollService()
