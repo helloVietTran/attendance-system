@@ -24,11 +24,3 @@ def create_new_request(
     current_user=Depends(get_current_user)
 ):
     return ResponseSchema(data= shift_service.create_request(db, current_user["id"], obj_in))
-
-# @router.post("/shift-change-request/{request_id}/status", response_model=ResponseSchema[ShiftChangeResponse])
-# def approve_shift_change(
-#     request_id: int,
-#     db: Session = Depends(get_db),
-#     current_admin = Depends(role_required([UserRole.ADMIN.value, UserRole.HR.value]))
-# ):
-#     return ResponseSchema(data=shift_service.approve_request(db, request_id, current_admin["id"]))
