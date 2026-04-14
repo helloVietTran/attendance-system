@@ -47,7 +47,8 @@ Hệ thống tính công nhân sự cho các doanh nghiệp, hỗ trợ chấm c
 - Thống kê nhân viên chăm chỉ để phục vụ trao giải, thống kê đi muộn/về sớm, ...
 
 ## Tài liệu: 
-`Link tài liệu `: https://drive.google.com/drive/folders/1r73PrdrbW8qOGboR3U7YgjpPmCUKjR-B?usp=drive_link
+`Link tài liệu`: <a href="https://drive.google.com/drive/folders/1r73PrdrbW8qOGboR3U7YgjpPmCUKjR-B?usp=drive_link">Here</a>
+
 `Defect log`: <a href="https://humgedu-my.sharepoint.com/:x:/g/personal/2221050047_student_humg_edu_vn/IQBMpk5FZKVCQ7DmC_SdBLYVAXV7IRQf4RxqRwy3sfrNlkg?e=SNZd72">Here</a>
 
 ## Yêu cầu phi chức năng
