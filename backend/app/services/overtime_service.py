@@ -289,8 +289,7 @@ class OvertimeService:
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             sheet_name = 'Danh sách OT'
             df.to_excel(writer, index=False, sheet_name=sheet_name)
-
-            workbook = writer.book
+            
             worksheet = writer.sheets[sheet_name]
 
             # --- Apply Styles ---
@@ -298,14 +297,13 @@ class OvertimeService:
             header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
             center_align = Alignment(horizontal="center", vertical="center")
 
-            # Style cho Header
+            # Style for Header
             for col_num, column in enumerate(df.columns, 1):
                 cell = worksheet.cell(row=1, column=col_num)
                 cell.font = header_font
                 cell.fill = header_fill
                 cell.alignment = center_align
 
-            # Auto-width và Center Align cho dữ liệu
             for col in worksheet.columns:
                 max_length = 0
                 col_letter = get_column_letter(col[0].column)
@@ -319,7 +317,6 @@ class OvertimeService:
                 
                 worksheet.column_dimensions[col_letter].width = max_length + 4
 
-            # Style đặc biệt: Highlight màu đỏ nếu trạng thái là REJECTED
             status_col_index = list(df.columns).index("Trạng thái") + 1
             for row in range(2, len(df) + 2):
                 cell = worksheet.cell(row=row, column=status_col_index)
