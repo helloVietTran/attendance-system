@@ -69,15 +69,6 @@ def create_compensation(
 ):
     return ResponseSchema(data=calendar_service.create_compensation(db, obj_in))
 
-@router.put("/compensations/{comp_id}", response_model=ResponseSchema[WorkCompensationResponse])
-def update_compensation(
-    comp_id: int, 
-    obj_in: WorkCompensationUpdate, 
-    db: Session = Depends(get_db),
-    _ = Depends(role_required([UserRole.ADMIN.value, UserRole.HR.value]))
-):
-    return ResponseSchema(data=calendar_service.update_compensation(db, comp_id, obj_in))
-
 @router.delete("/compensations/{comp_id}")
 def delete_compensation(
     comp_id: int, 

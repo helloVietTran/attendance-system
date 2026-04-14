@@ -17,6 +17,7 @@ $(document).ready(function () {
     async function initReportsPage() {
         try {
             await checkAuthAndGetUser();
+            calculateDailyWorkLog()
 
             const month = $monthSelect.val();
             const year = $yearInput.val();
@@ -263,4 +264,18 @@ function openFixModal(date, currentIn, currentOut) {
     const modalElement = document.getElementById('fixAttendanceModal');
     const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
     myModal.show();
+}
+
+function calculateDailyWorkLog(targetDate) {
+    const dateToCalculate = targetDate || new Date().toISOString().split('T')[0];
+    $.ajax({
+        url: `/attendance/logs/calculate?target_date=${dateToCalculate}`,
+        type: 'POST',
+        contentType: 'application/json',
+        error: function (xhr) {
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.detail || xhr.responseJSON.message : "Lỗi kết nối";
+
+            console.error(errorMsg);
+        },
+    });
 }
