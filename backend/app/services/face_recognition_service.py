@@ -7,8 +7,16 @@ from app.models.face_template import FaceTemplate
 
 class FaceRecognitionService:
     def __init__(self):
-        self.app = FaceAnalysis(name='buffalo_s', providers=['CPUExecutionProvider'])
-        self.app.prepare(ctx_id=0, det_size=(640, 640))
+        # Sửa lại cho fit với giới hạn phần cứng khi deploy
+        self.app = FaceAnalysis(
+            name='buffalo_s',
+            providers=['CPUExecutionProvider'],
+            root='/root/.insightface' # Dùng model local
+        )
+        # ctx_id = 0 -> GPU mode
+        # ctx_id = -1 -> CPU mode để fit với providers
+        # det_size lower -> giảm RAM
+        self.app.prepare(ctx_id=-1, det_size=(640, 640)) 
         
         self._cache = None 
 
