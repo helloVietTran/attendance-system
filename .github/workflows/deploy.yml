@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          ports: 22
+          port: 22
           script:
             cd ~/attendance-system
             git stash
