@@ -22,6 +22,12 @@ jobs:
           port: 22
           script: |
             cd ~/attendance-system
-            git stash                  # Tạm thời cất các thay đổi local trên EC2 nếu có
-            git pull origin main       # Kéo code mới nhất từ GitHub về EC2
-            sudo docker compose up -d --build  # Re-build lại hệ thống với code mới
+            # Tự động lấy lại quyền sở hữu trước khi Git làm việc
+            sudo chown -R ubuntu:ubuntu ~/attendance-system
+            
+            git reset --hard HEAD
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Build và chạy lại Docker
+            sudo docker compose up -d --build
