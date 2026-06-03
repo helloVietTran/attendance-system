@@ -1,4 +1,9 @@
-const BASE_URL = 'http://localhost:8000';
+// BASE_URL local:
+// const BASE_URL = 'http://localhost:8000';
+
+// BASE_URL deployment:
+const BASE_URL = 'http://98.89.168.237:8080';
+
 const API_PREFIX = '/api/v1';
 
 const API_URL = BASE_URL + API_PREFIX;
