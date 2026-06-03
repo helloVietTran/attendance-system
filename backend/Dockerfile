@@ -1,8 +1,8 @@
-FROM python:3.10:slim
+FROM python:3.11-slim
 WORKDIR /app
 
 # Cài đặt thư viện hệ thống cho mysqlclient
-RUN apt-get update and apt-get install -y \
+RUN apt-get update && apt-get install -y \
     build-essential \
     default-libmysqlclient-dev \
     pkg-config \
@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # App chạy tại thư mục backend, main.py nằm trong backend/app/
-CMD ["uvicorn", "app.main:app", "--host", ""--port", "8080"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
