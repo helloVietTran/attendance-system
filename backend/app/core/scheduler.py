@@ -8,7 +8,7 @@ from app.services.benefit_service import benefit_service
 from app.services.shift_service import shift_service
 from app.services.overtime_service import overtime_service
 
-def calculate_all_employees_attendance():
+def calculate_dayly_work_report():
     """Hàm quét toàn bộ nhân viên và tính công ngày hôm nay"""
     db = SessionLocal()
     today = date.today()
@@ -26,7 +26,6 @@ def calculate_all_employees_attendance():
     finally:
         db.close()
 
-
 def monthly_shift_update_job():
     db = SessionLocal()
     try:
@@ -42,7 +41,6 @@ def check_birthdays_job():
         benefit_service.process_daily_birthday_benefits(db)
     finally:
         db.close()
-        
 
 def caculate_overtime_job():
     db = SessionLocal()
@@ -56,13 +54,6 @@ def start_scheduler():
     scheduler = BackgroundScheduler()
 
     scheduler.add_job(
-        calculate_all_employees_attendance, 
-        'cron', 
-        hour=23, 
-        minute=0
-    )
-
-    scheduler.add_job(
         monthly_shift_update_job,
         'cron',
         day=1,
@@ -73,15 +64,22 @@ def start_scheduler():
     scheduler.add_job(
         check_birthdays_job,
         'cron',
-        hour=3,
+        hour=5,
         minute=0
     )
 
     scheduler.add_job(
+            calculate_dayly_work_report, 
+            'cron', 
+            hour=23, 
+            minute=0
+    )
+    # job tính thời gian OT sẽ chạy sau job tính công số hàng ngày
+    scheduler.add_job(
         caculate_overtime_job,
         'cron',
-        hour=22,
-        minute=0
+        hour=23,
+        minute=30
     )
 
     scheduler.start()

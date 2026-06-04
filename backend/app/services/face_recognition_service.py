@@ -7,8 +7,16 @@ from app.models.face_template import FaceTemplate
 
 class FaceRecognitionService:
     def __init__(self):
-        self.app = FaceAnalysis(name='buffalo_s', providers=['CPUExecutionProvider'])
-        self.app.prepare(ctx_id=0, det_size=(640, 640))
+        # Sửa lại cho fit với giới hạn phần cứng khi deploy
+        self.app = FaceAnalysis(
+            name='buffalo_s',
+            providers=['CPUExecutionProvider'],
+            root='/root/.insightface' # Dùng model local
+        )
+        # ctx_id = 0 -> GPU mode
+        # ctx_id = -1 -> CPU mode để fit với providers
+        # det_size lower -> giảm RAM
+        self.app.prepare(ctx_id=-1, det_size=(640, 640)) 
         
         self._cache = None 
 
@@ -23,7 +31,7 @@ class FaceRecognitionService:
             if faces:
                 # Lấy mặt to nhất
                 face = max(faces, key=lambda x: (x.bbox[2]-x.bbox[0])*(x.bbox[3]-x.bbox[1]))
-                # Chuẩn hóa embedding ngay lập tức
+                
                 norm_emb = face.embedding / np.linalg.norm(face.embedding)
                 all_embeddings.append(norm_emb)
 
@@ -45,7 +53,7 @@ class FaceRecognitionService:
             vecs = []
             ids = []
             for t in templates:
-                # Parse JSON 1 lần duy nhất khi nạp Cache
+                # Parse JSON & nạp Cache
                 emb = json.loads(t.face_encoding) if isinstance(t.face_encoding, str) else t.face_encoding
                 vecs.append(emb)
                 ids.append(t.employee_id)
@@ -70,7 +78,7 @@ class FaceRecognitionService:
         similarities = np.dot(known_vecs, cur_vec)
         
         max_idx = np.argmax(similarities)
-        if similarities[max_idx] > 0.45:  # Ngưỡng chấp nhận
+        if similarities[max_idx] > 0.55:  # Ngưỡng chấp nhận
             return emp_ids[max_idx]
         
         return None

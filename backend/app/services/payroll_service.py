@@ -1,9 +1,9 @@
 import calendar
 from datetime import date, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from fastapi import HTTPException
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Dict
 import pandas as pd
 from io import BytesIO
@@ -17,6 +17,7 @@ from app.models.absence import AbsenceType, ApprovalStatus, Absence
 from app.models.attendance_correction import AttendanceCorrection
 from app.models.timesheet_period_control import TimesheetPeriodControl
 from app.models.absence_plan import AbsencePlan
+from app.models.employee_benefit_log import EmployeeBenefitLog
 from app.services.calendar_service import calendar_service
 
 # lưu ý: công chuẩn là 8 tiếng = 480 phút. Nếu ngày công là 500 phút, chỉ lấy 480 phút
@@ -323,16 +324,16 @@ class PayrollService:
         return period
     
     def export_payroll_excel(self, db: Session, month: int = None, year: int = None):
-
         query = db.query(
             MonthlyWorkReport,
             Employee.full_name,
             Employee.email,
-            Employee.department_id
+            Employee.department_id,
+            Employee.dob
         ).join(Employee, MonthlyWorkReport.employee_id == Employee.id)
 
         if month and year:
-            from sqlalchemy import extract
+
             query = query.filter(
                 extract('month', MonthlyWorkReport.period_start) == month,
                 extract('year', MonthlyWorkReport.period_start) == year
@@ -341,7 +342,12 @@ class PayrollService:
         results = query.all()
 
         data_list = []
-        for report, name, email, dept_id in results:
+        for report, name, email, dept_id, dob in results:
+            bonus = 0
+
+            if dob and month and dob.month == month:
+                bonus = 480
+        
             data_list.append({
                 "ID": report.id,
                 "Mã NV": report.employee_id,
@@ -349,35 +355,66 @@ class PayrollService:
                 "Email": email,
                 "Phòng ban": dept_id,
                 "Kỳ công": f"{report.period_start} - {report.period_end}",
-                "Công thực tế (giờ)": round(report.standard_work_minutes / 60, 2),
+                "Công thực tế (phút)": report.standard_work_minutes,
                 "Nợ (phút)": report.lack_minutes,
-                "Công tạm tính (giờ)": round(report.estimated_minutes / 60, 2),
+                "Công tạm tính đủ (phút)": report.estimated_minutes,
                 "Ngày làm": report.actual_work_days,
                 "Nghỉ có lương": report.paid_leave_days,
-                "Nghỉ không lương": report.unpaid_leave_days
+                "Nghỉ không lương": report.unpaid_leave_days,
+                "Bonus (phút)": bonus,
             })
 
         df = pd.DataFrame(data_list)
+        
+        # sheet 2
+        today = date.today()
 
+        start_of_month = date(today.year, today.month, 1)
+        end_of_month = date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+
+        absence_plans = db.query(AbsencePlan).filter(
+            AbsencePlan.status == ApprovalStatus.APPROVED,
+            AbsencePlan.start_date <= end_of_month,
+            AbsencePlan.end_date >= start_of_month
+        ).all()
+
+        long_leave_list = []
+
+        for p in absence_plans:
+            duration = (p.end_date - p.start_date).days + 1
+
+            if duration > 30:
+                long_leave_list.append({
+                    "Mã NV": p.employee_id,
+                    "Từ ngày": p.start_date,
+                    "Đến ngày": p.end_date,
+                    "Số ngày nghỉ": duration,
+                    "Loại nghỉ": p.absence_type.label,
+                    "Trạng thái": p.status.value
+                })
+
+        df_long_leave = pd.DataFrame(long_leave_list)
+
+        # export excel
         output = BytesIO()
-
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Bảng công')
+            df.to_excel(writer, index=False, sheet_name=f'Bảng công tháng {month}_{year}')
+            df_long_leave.to_excel(writer, index=False, sheet_name='Nghỉ dài ngày')
 
-            workbook = writer.book
-            worksheet = writer.sheets['Bảng công']
+            # format sheet 1
+            ws1 = writer.sheets[f'Bảng công tháng {month}_{year}']
 
             header_font = Font(bold=True, color="FFFFFF")
             header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
             center_align = Alignment(horizontal="center", vertical="center")
 
             for col_num, column in enumerate(df.columns, 1):
-                cell = worksheet.cell(row=1, column=col_num)
+                cell = ws1.cell(row=1, column=col_num)
                 cell.font = header_font
                 cell.fill = header_fill
                 cell.alignment = center_align
 
-            for col in worksheet.columns:
+            for col in ws1.columns:
                 max_length = 0
                 col_letter = get_column_letter(col[0].column)
 
@@ -389,14 +426,35 @@ class PayrollService:
                     if isinstance(cell.value, (int, float)):
                         cell.alignment = center_align
 
-                worksheet.column_dimensions[col_letter].width = max_length + 2
+                ws1.column_dimensions[col_letter].width = max_length + 2
 
             debt_col_index = list(df.columns).index("Nợ (phút)") + 1
 
             for row in range(2, len(df) + 2):
-                cell = worksheet.cell(row=row, column=debt_col_index)
+                cell = ws1.cell(row=row, column=debt_col_index)
                 if cell.value and cell.value > 0:
                     cell.font = Font(color="FF0000", bold=True)
+            # format sheet 2
+            ws2 = writer.sheets['Nghỉ dài ngày']
+
+            for col_num, column in enumerate(df_long_leave.columns, 1):
+                cell = ws2.cell(row=1, column=col_num)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_align
+
+            for col in ws2.columns:
+                max_length = 0
+                col_letter = get_column_letter(col[0].column)
+
+                for cell in col:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+
+                    if isinstance(cell.value, (int, float)):
+                        cell.alignment = center_align
+
+                ws2.column_dimensions[col_letter].width = max_length + 2
 
         output.seek(0)
 

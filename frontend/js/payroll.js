@@ -151,21 +151,32 @@ function lockPayrollPeriod() {
 }
 
 function checkPayrollPeriodStatus() {
-    const month = new Date().getMonth() + 1;
-    const year = new Date().getFullYear();
+    const month = $('#filterMonth').val() || (new Date().getMonth() + 1);
+    const year = $('#filterYear').val() || new Date().getFullYear();
 
     $.ajax({
-        url: `/payroll/monthly-reports? month=${month}&year=${year}`,
+        url: `/payroll/period-control`,
         type: 'GET',
+        data: { month: month, year: year },
         success: function (res) {
-            if (res.status === 1000 && res.data && res.data.length > 0) {
+
+            if (res.data) {
                 $('.btn-lock')
                     .prop('disabled', true)
                     .removeClass('btn-outline-warning')
                     .addClass('btn-secondary')
-                    .text('Đã khóa công');
+                    .html('<i class="fa-solid fa-lock me-1"></i> Đã khóa công');
+            } else {
+                $('.btn-lock')
+                    .prop('disabled', false)
+                    .removeClass('btn-secondary')
+                    .addClass('btn-outline-warning')
+                    .html('<i class="fa-solid fa-lock me-1"></i> Khóa kỳ công');
             }
         },
+        error: function (xhr) {
+            console.error("Lỗi check kỳ công:", xhr);
+        }
     });
 }
 
@@ -208,4 +219,52 @@ async function exportExcel() {
         console.error(error);
         alert('Xuất file thất bại!');
     }
+}
+
+/** Call API chốt công */
+function calculate_batch_payroll(btnElement) {
+    const today = new Date();
+    const currentDay = today.getDate();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    const closingDay = currentDay;
+
+    if (currentDay < 18 || currentDay > 20) {
+        const proceed = confirm(`CẢNH BÁO: Hôm nay là ngày ${currentDay}. Thông thường việc chốt công chỉ diễn ra từ ngày 18 đến ngày 20 hàng tháng.\n\nBạn có chắc chắn muốn tiếp tục chốt công vào ngày này không?`);
+        if (!proceed) return;
+    }
+
+    const $btn = $(btnElement || event.target);
+    const originalClass = "btn btn-outline-primary btn-sm shadow-sm";
+    const loadingClass = "btn-primary btn-sm disabled";
+
+    $btn.attr('class', loadingClass)
+        .html('<span class="spinner-border spinner-border-sm me-1"></span> Đang xử lý...');
+
+    $.ajax({
+        url: '/payroll/calculate-batch',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            month: parseInt(month),
+            year: parseInt(year),
+            closing_day: parseInt(closingDay)
+        }),
+        success: function (response) {
+            if (response.status === 1000) {
+                showToast("Tính toán bảng công thành công!", "success");
+                loadPayrollData();
+            } else {
+                showToast("Có lỗi: " + response.message, "danger");
+            }
+        },
+        error: function (xhr) {
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Lỗi hệ thống";
+            showToast("Không thể chốt công: " + errorMsg, "danger");
+        },
+        complete: function () {
+            $btn.attr('class', originalClass).html('Chốt công');
+        }
+    });
 }

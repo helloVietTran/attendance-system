@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div style="width:35px;height:35px;background:#ff9800;border-radius:50%;display:flex;align-items:center;justify-content:center;">
                 <i class="fa-solid fa-play" style="font-size:12px;color:white;"></i>
             </div>
-            <span style="font-weight:bold;">Hệ thống</span>
+            <span style="font-weight:bold;">Hệ thống tính công</span>
         </div>
 
         <!-- Close button (mobile) -->

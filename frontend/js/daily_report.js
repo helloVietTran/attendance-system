@@ -17,6 +17,7 @@ $(document).ready(function () {
     async function initReportsPage() {
         try {
             await checkAuthAndGetUser();
+            calculateDailyWorkLog()
 
             const month = $monthSelect.val();
             const year = $yearInput.val();
@@ -125,12 +126,17 @@ function submitFixRequest() {
 
             $('button[onclick="submitFixRequest()"]').prop('disabled', true).text('Đang gửi...');
         },
-        success: function (res) {
+        success: async function (res) {
             showToast("Gửi yêu cầu thành công!", "success");
             const modalElement = document.getElementById('fixAttendanceModal');
             bootstrap.Modal.getInstance(modalElement).hide();
             // Reset form
             $('#modal-reason').val('');
+            const month = $('#report-month').val();
+            const year = $('#report-year').val();
+
+            await fetchMyFixRequests(month, year);
+            await fetchAndRenderReports(month, year);
         },
         error: function (xhr) {
             const errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Không thể gửi yêu cầu";
@@ -263,4 +269,18 @@ function openFixModal(date, currentIn, currentOut) {
     const modalElement = document.getElementById('fixAttendanceModal');
     const myModal = bootstrap.Modal.getOrCreateInstance(modalElement);
     myModal.show();
+}
+
+function calculateDailyWorkLog(targetDate) {
+    const dateToCalculate = targetDate || new Date().toISOString().split('T')[0];
+    $.ajax({
+        url: `/attendance/logs/calculate?target_date=${dateToCalculate}`,
+        type: 'POST',
+        contentType: 'application/json',
+        error: function (xhr) {
+            const errorMsg = xhr.responseJSON ? xhr.responseJSON.detail || xhr.responseJSON.message : "Lỗi kết nối";
+
+            console.error(errorMsg);
+        },
+    });
 }

@@ -240,7 +240,8 @@ $("#btn-change-shift").on("click", function () {
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({
-            shift_id: shiftId
+            new_shift_id: shiftId,
+            current_shift_id: JSON.parse(localStorage.getItem("user")).shift.id
         }),
         success: function (res) {
             if (res.status === 1000) {
