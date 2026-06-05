@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  backend:
+    volumes:
+      - ./backend/models:/root/.insightface/models
+    build: ./backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443" # Mở cổng https
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Đưa cấu hình Nginx vào
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Đưa chứng chỉ SSL từ EC2 vào
