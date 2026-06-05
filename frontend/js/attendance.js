@@ -137,24 +137,33 @@ let autoCaptureInterval = null;
  */
 async function startAttendanceCheck() {
     isRegistering = false;
-    const cameraModalInstance = new bootstrap.Modal(document.getElementById('cameraModal'));
+    
+    const cameraModalElement = document.getElementById('cameraModal');
+    const cameraModalInstance = new bootstrap.Modal(cameraModalElement);
+
+    // FIX: Chờ Modal hiển thị hoàn toàn rồi mới gọi camera
+    cameraModalElement.addEventListener('shown.bs.modal', async function onModalShown() {
+        const videoElement = document.getElementById('video');
+        const loadingIndicator = document.getElementById('camera-loading');
+
+        try {
+            currentVideoStream = await navigator.mediaDevices.getUserMedia({
+                video: { 
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 720 } 
+                },
+                audio: false
+            });
+            videoElement.srcObject = currentVideoStream;
+            loadingIndicator.style.display = 'none';
+        } catch (err) {
+            console.error("Không thể mở camera (Attendance):", err.name, err.message);
+            displayToast("Không tìm thấy camera hoặc quyền truy cập bị từ chối!", "danger");
+            cameraModalInstance.hide();
+        }
+    }, { once: true }); // Chạy duy nhất một lần cho đợt kích hoạt này
+
     cameraModalInstance.show();
-
-    const videoElement = document.getElementById('video');
-    const loadingIndicator = document.getElementById('camera-loading');
-
-    try {
-        currentVideoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 1280, height: 720 },
-            audio: false
-        });
-        videoElement.srcObject = currentVideoStream;
-        loadingIndicator.style.display = 'none';
-    } catch (err) {
-        console.error("Không thể mở camera:", err);
-        displayToast("Không tìm thấy camera hoặc quyền truy cập bị từ chối!", "danger");
-        cameraModalInstance.hide();
-    }
 }
 
 /**
@@ -314,53 +323,69 @@ function openCameraForRegister() {
     }
 
     // Close register modal
-    const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerFaceModal'));
-    registerModal.hide();
+    const registerModalElement = document.getElementById('registerFaceModal');
+    const registerModal = bootstrap.Modal.getInstance(registerModalElement);
+    if (registerModal) registerModal.hide();
 
     // Open camera modal for registration
     isRegistering = true;
     capturedImages = [];
-    startRegistrationCamera();
+    
+    // Đợi modal cũ ẩn hẳn để tránh chồng chéo backdrop (phụ của Bootstrap)
+    setTimeout(() => {
+        startRegistrationCamera();
+    }, 400);
 }
 
 /**
  * Start camera for face registration
  */
 async function startRegistrationCamera() {
-    const cameraModalInstance = new bootstrap.Modal(document.getElementById('cameraModal'));
-    cameraModalInstance.show();
+    const cameraModalElement = document.getElementById('cameraModal');
+    const cameraModalInstance = new bootstrap.Modal(cameraModalElement);
 
-    // Change modal title and button text for registration
+    // Change modal title and button text for registration trước khi show
     $('.modal-title').text('Đăng ký khuôn mặt - ' + selectedEmployeeName);
-    $('#snap').hide(); // Hide manual capture button
+    $('#snap').hide(); 
 
-    const videoElement = document.getElementById('video');
-    const loadingIndicator = document.getElementById('camera-loading');
+    // FIX: Chờ Modal hiển thị hoàn toàn rồi mới gọi camera đăng ký
+    cameraModalElement.addEventListener('shown.bs.modal', async function onRegisterModalShown() {
+        const videoElement = document.getElementById('video');
+        const loadingIndicator = document.getElementById('camera-loading');
 
-    try {
-        currentVideoStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 1280, height: 720 },
-            audio: false
-        });
-        videoElement.srcObject = currentVideoStream;
-        loadingIndicator.style.display = 'none';
+        try {
+            currentVideoStream = await navigator.mediaDevices.getUserMedia({
+                video: { 
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 720 } 
+                },
+                audio: false
+            });
+            videoElement.srcObject = currentVideoStream;
+            loadingIndicator.style.display = 'none';
 
-        // Add instruction text
-        $('#cameraModal .modal-body p').text(`Đang tự động chụp 20 ảnh mẫu cho ${selectedEmployeeName}. Ảnh đã chụp: 0/20`);
+            // Add instruction text
+            $('#cameraModal .modal-body p').text(`Đang tự động chụp 20 ảnh mẫu cho ${selectedEmployeeName}. Ảnh đã chụp: 0/20`);
 
-        // Start automatic capture
-        startAutoCapture();
-    } catch (err) {
-        console.error("Không thể mở camera:", err);
-        displayToast("Không tìm thấy camera hoặc quyền truy cập bị từ chối!", "danger");
-        cameraModalInstance.hide();
-    }
+            // Start automatic capture
+            startAutoCapture();
+        } catch (err) {
+            console.error("Không thể mở camera (Register):", err.name, err.message);
+            displayToast("Không tìm thấy camera hoặc quyền truy cập bị từ chối!", "danger");
+            cameraModalInstance.hide();
+        }
+    }, { once: true });
+
+    cameraModalInstance.show();
 }
 
 /**
  * Start automatic image capture every 100ms
  */
 function startAutoCapture() {
+    // Xóa interval cũ nếu lỡ còn tồn tại
+    if (autoCaptureInterval) clearInterval(autoCaptureInterval);
+    
     autoCaptureInterval = setInterval(() => {
         captureSampleImage();
     }, 100);
@@ -372,6 +397,8 @@ function startAutoCapture() {
 function captureSampleImage() {
     const videoElement = document.getElementById('video');
     const canvas = document.getElementById('canvas');
+
+    if (!videoElement || !videoElement.videoWidth) return; // Đề phòng lỗi luồng chưa sẵn sàng từng mili-giây đầu
 
     canvas.width = videoElement.videoWidth;
     canvas.height = videoElement.videoHeight;
@@ -420,8 +447,9 @@ function sendRegistration() {
             displayToast(response.message || "Đăng ký khuôn mặt thành công!", "success");
 
             // Close modal and reset
-            const cameraModalInstance = bootstrap.Modal.getInstance(document.getElementById('cameraModal'));
-            cameraModalInstance.hide();
+            const cameraModalElement = document.getElementById('cameraModal');
+            const cameraModalInstance = bootstrap.Modal.getInstance(cameraModalElement);
+            if (cameraModalInstance) cameraModalInstance.hide();
             stopVideoStream();
             isRegistering = false;
         },
