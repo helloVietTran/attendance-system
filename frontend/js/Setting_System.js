@@ -47,7 +47,7 @@ async function initSettingsPage() {
 async function loadSettings() {
     const container = document.getElementById('settings-container');
     try {
-        const response = await fetchWithAuth(`${API_URL}/settings`);
+        const response = await fetchWithAuth(`${API_URL}/settings/`);
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
         const result = await response.json();
 
