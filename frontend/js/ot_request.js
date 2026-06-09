@@ -38,7 +38,39 @@ $(document).ready(function () {
         e.preventDefault();
         createOTRequest();
     });
+    initMonthFilter();
 });
+
+function initMonthFilter() {
+    const selectMonth = $('#adminCorrectionFilterMonth');
+    if (!selectMonth.length) return;
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+
+    let htmlOptions = '';
+
+    for (let i = 0; i < 6; i++) {
+        let targetMonth = currentMonth - i;
+        let targetYear = currentYear;
+        if (targetMonth <= 0) {
+            targetMonth += 12;
+            targetYear -= 1;
+        }
+
+        const valueStr = targetMonth; 
+        
+        const textStr = `Tháng ${targetMonth} / ${targetYear}`;
+
+        // Tháng hiện tại sẽ được tự động chọn 
+        const isSelected = i === 0 ? 'selected' : '';
+
+        htmlOptions += `<option value="${valueStr}" ${isSelected}>${textStr}</option>`;
+    }
+
+    selectMonth.html(htmlOptions);
+}
 
 /**
  * Lấy danh sách yêu cầu OT của cá nhân
