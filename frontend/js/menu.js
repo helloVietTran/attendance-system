@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.role || "employee";
   const sidebarContainer = document.getElementById("sidebar-container");
   if (!sidebarContainer) return;
 
@@ -9,8 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
     { text: "Thông tin nhân viên", icon: "fa-solid fa-user", link: "employee_info.html" },
     { text: "QL yêu cầu OT", icon: "fa-solid fa-user-clock me-2", link: "ot_request.html" },
     { text: "QL ngày nghỉ", icon: "fa-solid fa-calendar-xmark", link: "absence.html" },
-    { text: "Bảng công", icon: "fa-business-time", link: "payroll.html" },
-    { text: "Thống kê", icon: "fa-chart-column", link: "statistic.html" },
+    { text: "Bảng công", icon: "fa-business-time", link: "payroll.html", roles: ["admin", "hr"] },
+    { text: "Thống kê", icon: "fa-chart-column", link: "statistic.html", roles: ["admin", "hr"] },
     { text: "Cài Đặt", icon: "fa-gear", link: "setting_system.html" },
   ];
 
@@ -36,9 +38,12 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
 
   menuItems.forEach((item) => {
+    if (item.roles && !item.roles.includes(role)) {
+      return; 
+    }
     const normalizedLink = item.link.replace("./", "");
     const isActive = currentPath === normalizedLink ? "active-menu" : "";
-
+    
     menuHtml += `
       <li class="${isActive}">
         <a href="${item.link}" style="display:block;padding:12px 20px;color:inherit;text-decoration:none;">

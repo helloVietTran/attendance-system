@@ -15,7 +15,7 @@ INSERT INTO employees
 VALUES
 (1, 'Nguyen Van Admin', 35, 'admin@company.com', 1, 'hashed_admin_pw', '1991-03-10', 30000000, 1, 'ADMIN', 1),
 
-(2, 'Tran Thi HR', 30, 'hr@company.com', 2, '123', '1995-07-15', 20000000, 1, 'HR', 1),
+(2, 'Tran Thi HR', 30, 'hr@company.com', 2, 'hashed_hr_pw', '1995-07-15', 20000000, 1, 'HR', 1),
 
 (3, 'Le Van A', 25, 'leva@company.com', 3, 'hashed_emp1_pw', '2000-01-12', 15000000, 1, 'EMPLOYEE', 1),
 
