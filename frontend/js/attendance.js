@@ -411,7 +411,7 @@ function captureSampleImage() {
             const count = capturedImages.length;
             $('#cameraModal .modal-body p').text(`Đang tự động chụp 20 ảnh mẫu cho ${selectedEmployeeName}. Ảnh đã chụp: ${count}/20`);
 
-            if (count >= 12) {
+            if (count >= 20) {
                 clearInterval(autoCaptureInterval);
                 autoCaptureInterval = null;
                 sendRegistration();
